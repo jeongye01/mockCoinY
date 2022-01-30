@@ -20,9 +20,9 @@ const GlobalStyle = createGlobalStyle`
 `;
 
 export const theme: DefaultTheme = {
-  bgColor: '#2f3640',
-  textColor: '#f5f6fa',
-  accentColor: '#fbc531',
+  bgColor: '#2d3436',
+  textColor: '#dfe6e9',
+  accentColor: '#6c5ce7',
 };
 
 export default GlobalStyle;
