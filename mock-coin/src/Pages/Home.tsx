@@ -48,9 +48,53 @@ const CoinList = styled.ul`
     }
   }
 `;
-const Tickers = styled.div`
-  width: 385px;
-  padding: 10px;
+const Tickers = styled.table`
+  table-layout: fixed;
+  width: 380px;
+  border-collapse: collapse;
+  border: 3px solid purple;
+  font-size: 14px;
+  white-space: nowrap;
+
+  tr {
+    display: flex;
+    width: 100%;
+    border: 1px solid green;
+  }
+  th {
+    border: 1px solid red;
+  }
+  td {
+    border: 1px solid orange;
+  }
+  thead th,
+  tbody td {
+    text-align: end;
+  }
+  thead th:nth-child(1),
+  tbody td:nth-child(1) {
+    width: 20%;
+    text-align: start;
+  }
+
+  thead th:nth-child(2),
+  tbody td:nth-child(2) {
+    width: 30%;
+  }
+
+  thead th:nth-child(3),
+  tbody td:nth-child(3) {
+    width: 25%;
+  }
+
+  thead th:last-child,
+  tbody td:last-child {
+    width: 25%;
+  }
+
+  tbody td {
+    // text-align: center;
+  }
 `;
 
 interface Itickers {
@@ -86,29 +130,7 @@ interface Iticker {
 function Home() {
   const [initCoins, setInitCoins] = useState<Iticker[]>();
   const [isLoading, setIsLoading] = useState(true);
-  const columns = useMemo(
-    () => [
-      {
-        Header: '코인명',
-        accessor: 'symbol',
-      },
 
-      {
-        Header: '가격',
-        accessor: 'closePrice',
-      },
-      {
-        Header: '등락률',
-        accessor: ' chgRate',
-      },
-
-      {
-        Header: '거래량',
-        accessor: 'value',
-      },
-    ],
-    [],
-  );
   useEffect(() => {
     fetchBithumbTickers().then((result) => {
       const { data: tickers } = result;
@@ -138,17 +160,19 @@ function Home() {
       ) : (
         <div>
           <Tickers>
-            <div>
-              <span>코인명</span>
-              <span>가격</span>
-              <span>등락률</span>
-              <span>거래대금</span>
-            </div>
-            {initCoins?.map((coin: any, i: any) => (
-              <li key={i}>
+            <thead>
+              <tr>
+                <th>코인명</th>
+                <th>가격</th>
+                <th>등락률</th>
+                <th>거래대금</th>
+              </tr>
+            </thead>
+            <tbody>
+              {initCoins?.map((coin) => (
                 <CoinInfo symbol={coin.symbol} initCoin={coin} />
-              </li>
-            ))}
+              ))}
+            </tbody>
           </Tickers>
         </div>
       )}

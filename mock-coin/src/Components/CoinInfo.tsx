@@ -5,23 +5,19 @@ import { useQuery } from 'react-query';
 import { fetchBithumbTicker, fetchPriceHistory } from '../Api';
 import CoinTable from '../Components/CoinTable';
 import { w3cwebsocket as W3CWebSocket } from 'websocket';
-interface Itickers {
-  opening_price: string;
-  closing_price: string;
-  min_price: string;
-  max_price: string;
-  units_traded: string;
-  acc_trade_value: string;
-  prev_closing_price: string;
-  units_traded_24H: string;
-  acc_trade_value_24H: string;
-  fluctate_24H: string;
-  fluctate_rate_24H: number;
-  date: string;
-}
+import { useTable } from 'react-table';
 
-//Itickers[]
-//any 고치기
+const Symbol = styled.td`
+  display: flex;
+  align-itemns: center;
+`;
+const Price = styled.td<{ isRaised: boolean }>`
+  color: ${(props) => (props.isRaised ? '#e84118' : '#0097e6')};
+`;
+const Rate = styled.td<{ isRaised: boolean }>`
+  color: ${(props) => (props.isRaised ? '#e84118' : '#0097e6')};
+`;
+const Value = styled.td``;
 
 interface Iprops {
   initCoin: { symbol: string; closePrice: number; chgRate: number; value: number };
@@ -35,6 +31,7 @@ interface Iticker {
 }
 
 function CoinInfo(prop: Iprops) {
+  //console.log('coinInfo');
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const { symbol, initCoin } = prop;
 
@@ -61,6 +58,7 @@ function CoinInfo(prop: Iprops) {
         //console.log(closePrice);
 
         setCoin({ symbol: symbol.slice(0, -4), closePrice, chgRate, value });
+
         setIsLoading(false);
       }
     };
@@ -76,15 +74,40 @@ function CoinInfo(prop: Iprops) {
   return (
     <div>
       {isLoading ? (
-        <ul>
-          <div>
-            {initCoin?.symbol} {initCoin?.closePrice} {initCoin?.chgRate} {Math.floor(initCoin?.value / 1000000)}
-          </div>
-        </ul>
+        <tr key={symbol}>
+          <Symbol>
+            {' '}
+            <img
+              width="15px"
+              height="15px"
+              src={`https://cryptoicon-api.vercel.app/api/icon/${initCoin.symbol.toLowerCase()}`}
+            />{' '}
+            {initCoin?.symbol}{' '}
+          </Symbol>{' '}
+          <Price isRaised={initCoin?.chgRate >= 0}>{Math.floor(initCoin?.closePrice).toLocaleString()} </Price>{' '}
+          <Rate isRaised={initCoin?.chgRate >= 0}>
+            {' '}
+            {initCoin?.chgRate >= 0 ? `+${initCoin?.chgRate}` : initCoin?.chgRate}%{' '}
+          </Rate>{' '}
+          <Value> {Math.floor(initCoin?.value / 1000000)}백만 </Value>
+        </tr>
       ) : (
-        <div>
-          {coin?.symbol} {coin?.closePrice} {coin?.chgRate} {Math.floor((coin?.value || 0) / 1000000)}
-        </div>
+        <tr key={symbol}>
+          <Symbol>
+            <img
+              width="15px"
+              height="15px"
+              src={`https://cryptoicon-api.vercel.app/api/icon/${initCoin.symbol.toLowerCase()}`}
+            />{' '}
+            {coin?.symbol}{' '}
+          </Symbol>
+          <Price isRaised={(coin?.chgRate || 0) >= 0}>{Math.floor(coin?.closePrice || 0).toLocaleString()} </Price>
+          <Rate isRaised={(coin?.chgRate || 0) >= 0}>
+            {' '}
+            {(coin?.chgRate || 0) >= 0 ? `+${coin?.chgRate}` : coin?.chgRate}%{' '}
+          </Rate>
+          <Value> {Math.floor((coin?.value || 0) / 1000000)}백만</Value>
+        </tr>
       )}
     </div>
   );
