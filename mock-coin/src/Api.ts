@@ -16,10 +16,19 @@ export function fetchCoins() {
 export function fetchBithumbTickers() {
   return bithumb.get('/ticker/ALL_KRW').then((response) => response.data);
 }
+export function fetchBithumbTicker(symbol: string) {
+  return bithumb.get(`/ticker/${symbol}_KRW`).then((response) => response.data);
+}
 
-//coinPaprika
-export function fetchPaprikaTickers() {
-  return coinPaprika.get(`/tickers?quotes=KRW`).then((response) => response.data);
+export async function fetchPriceHistory(symbol: string) {
+  try {
+    const response = await bithumb.get(`/transaction_history/${symbol}_KRW`);
+    const { data } = response;
+    return data;
+  } catch (error) {
+    console.error(error);
+    return null;
+  }
 }
 /*
 export function fetchOneTicker(coin: string) {

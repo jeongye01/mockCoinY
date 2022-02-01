@@ -1,9 +1,12 @@
 import styled from 'styled-components';
 import { Link } from 'react-router-dom';
-import { useMemo, useEffect, useState } from 'react';
-import { useQuery } from 'react-query';
-import { fetchBithumbTickers, fetchPaprikaTickers } from '../Api';
+import { useMemo, useEffect, useState, useRef, useCallback } from 'react';
+import { useQuery, useQueryClient } from 'react-query';
+import { fetchBithumbTickers, fetchPriceHistory, fetchBithumbTicker } from '../Api';
+import CoinInfo from '../Components/CoinInfo';
 import CoinTable from '../Components/CoinTable';
+import { w3cwebsocket as W3CWebSocket } from 'websocket';
+import { convertTypeAcquisitionFromJson, SymbolDisplayPartKind } from 'typescript';
 const Container = styled.div`
   padding: 0px 30px;
   max-width: 480px;
@@ -45,6 +48,10 @@ const CoinList = styled.ul`
     }
   }
 `;
+const Tickers = styled.div`
+  width: 385px;
+  padding: 10px;
+`;
 
 interface Itickers {
   opening_price: string;
@@ -63,34 +70,124 @@ interface Itickers {
 
 interface Idata {
   name: string;
+  closePrice: any;
+  chgRate: any;
+  value: any;
+}
 
-  price: number;
-  fluctate_rate_24H: number;
-  units_traded_24H: number;
+interface Iticker {
+  symbol: string;
+  closePrice: number;
+  chgRate: number;
+  value: number;
 }
 //Itickers[]
+//any 고치기
 function Home() {
-  const { isLoading: isSymbolLoading, data: symbols } = useQuery<any>(['forSymbol', 'tickers'], fetchPaprikaTickers);
-  const { isLoading: isDetailLoading, data: details } = useQuery<any>([`forDetail`, `tickers`], fetchBithumbTickers);
-  const [data, setData] = useState<Idata[]>();
-  useEffect(() => {
-    if (!isSymbolLoading && !isDetailLoading) {
-      console.log(symbols.slice(0, 100));
-      const symbols = Object.keys(details.data);
-      //symbols.map((symbol)=>({symbol,details.data.symbol.}));
-      /*
-      const data = tickers?.slice(0, 7).map((ticker) => ({
-        name: ticker.name,
+  const [initCoins, setInitCoins] = useState<Iticker[]>();
+  const [isLoading, setIsLoading] = useState(true);
+  const columns = useMemo(
+    () => [
+      {
+        Header: '코인명',
+        accessor: 'symbol',
+      },
 
-        price: 123,
-        fluctate_rate_24H:ticker.fluctate_rate_24H,
-        units_traded_24H: ticker.units_traded_24H,
-      }));
-      console.log(data);
-      setData(data);
-      */
-    }
-  }, [isSymbolLoading, isDetailLoading]);
+      {
+        Header: '가격',
+        accessor: 'closePrice',
+      },
+      {
+        Header: '등락률',
+        accessor: ' chgRate',
+      },
+
+      {
+        Header: '거래량',
+        accessor: 'value',
+      },
+    ],
+    [],
+  );
+  useEffect(() => {
+    fetchBithumbTickers().then((result) => {
+      const { data: tickers } = result;
+      const symbols = Object.keys(tickers).slice(0, 100);
+      let tmpArr: Iticker[] = [];
+      symbols?.forEach((symbol) => {
+        const { closing_price, fluctate_rate_24H, acc_trade_value_24H } = tickers[symbol];
+
+        tmpArr.push({
+          symbol,
+          closePrice: closing_price,
+          chgRate: fluctate_rate_24H,
+          value: acc_trade_value_24H,
+        });
+      });
+
+      setInitCoins(tmpArr);
+      setIsLoading(false);
+    });
+  }, []);
+
+  console.log(initCoins);
+  return (
+    <>
+      {isLoading ? (
+        'Loading...'
+      ) : (
+        <div>
+          <Tickers>
+            <div>
+              <span>코인명</span>
+              <span>가격</span>
+              <span>등락률</span>
+              <span>거래대금</span>
+            </div>
+            {initCoins?.map((coin: any, i: any) => (
+              <li key={i}>
+                <CoinInfo symbol={coin.symbol} initCoin={coin} />
+              </li>
+            ))}
+          </Tickers>
+        </div>
+      )}
+    </>
+  );
+}
+
+export default Home;
+/*
+
+ //syms = syms.map((symbol) => `${symbol}_KRW`);
+      let infos: Idata[] = [];
+      syms.forEach((sym) => {
+        const { closing_price, fluctate_rate_24H, units_traded_24H } = tickers.data[sym];
+        infos.push({ name: sym, closePrice: closing_price, chgRate: fluctate_rate_24H, value: units_traded_24H });
+        setCoins(infos);
+      });
+  
+  const [trigger, setTrigger] = useState<boolean>(false);
+  useEffect(() => {
+    console.log('coin Upadated');
+    setMajorCoins(Object.keys(coins.data).slice(0, 10));
+    setTrigger(!trigger);
+    console.log(majorCoinsInfo);
+  }, [coins]);
+  useEffect(() => {
+    let infos: Idata[] = [];
+    majorCoins?.forEach((symbol) => {
+      fetchPriceHistory(symbol).then((result) => {
+        const { fluctate_rate_24H, units_traded_24H } = coins.data[symbol];
+        const { price } = result.data.slice(-1)[0];
+        console.log(result.data);
+        infos.push({ name: symbol, price: Math.floor(price), fluctate_rate_24H, units_traded_24H });
+        if (infos.length === 10) setMajorCoinsInfo(infos);
+      });
+    });
+
+    //setMajorCoinsInfo(infos);
+  }, [trigger]);
 
   const columns = useMemo(
     () => [
@@ -115,18 +212,36 @@ function Home() {
     ],
     [],
   );
-
   return (
     <Container>
       <Header>
         <h1>코인 랭킹 Top7</h1>
       </Header>
-      {data === undefined ? 'Loading...' : <></>}
+
+      {isListLoading ? (
+        'Loading...'
+      ) : (
+        <ul>
+          {majorCoinsInfo?.map((coin, i) => (
+            <li key={i}>
+              {coin.name} {coin.price}
+            </li>
+          ))}
+        </ul>
+      )}
     </Container>
   );
-}
 
+*/
+
+//<CoinInfo symbol={coin} /></Container></Container>/
+//   {majorCoins?.map((coin,i)=>(<li key={i}><CoinInfo symbol={coin} /><li/>))}
 /*
+ {majorCoinsInfo?.map((coin, i) => (
+            <li key={i}>
+              <CoinInfo data={majorCoinsInfo} />
+            </li>
+          ))}
 function Home() {
   const { isLoading, data: tickers } = useQuery<Itickers[]>('tickers', fetchTickers);
   const columns = useMemo(
@@ -182,4 +297,3 @@ function Home() {
   );
 }
 */
-export default Home;
