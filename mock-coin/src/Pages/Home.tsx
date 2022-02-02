@@ -7,6 +7,8 @@ import { fetchBithumbTickers, fetchPriceHistory, fetchBithumbTicker } from '../A
 
 import Tickers from './Tickers/Tickers';
 import CoinOutline from './CoinOuline';
+import { useSetRecoilState } from 'recoil';
+import { isDarkAtom } from '../atoms';
 const Container = styled.div`
   padding: 15px;
   display: flex;
@@ -50,8 +52,10 @@ const CoinList = styled.ul`
 `;
 
 function Home() {
+  const setterFn = useSetRecoilState(isDarkAtom);
   return (
     <Container>
+      <button onClick={() => setterFn((prev) => !prev)}>Toggel Button</button>
       <Tickers />
     </Container>
   );

@@ -19,7 +19,17 @@ const GlobalStyle = createGlobalStyle`
   }
 `;
 
-export const theme: DefaultTheme = {
+export const darkTheme: DefaultTheme = {
+  boxShadow: 'rgba(0, 0, 0, 0.1) 0px 1px 3px 0px, rgba(0, 0, 0, 0.06) 0px 1px 2px 0px',
+  bgColor: 'black',
+  textColor: 'black',
+  accentColor: '#fbc531',
+  lineColor: '#dcdde1',
+  panelColor: '#ffffff',
+  blue: '#0097e6',
+  red: '#e84118',
+};
+export const lightTheme: DefaultTheme = {
   boxShadow: 'rgba(0, 0, 0, 0.1) 0px 1px 3px 0px, rgba(0, 0, 0, 0.06) 0px 1px 2px 0px',
   bgColor: '#FAFAFA',
   textColor: 'black',
@@ -29,5 +39,4 @@ export const theme: DefaultTheme = {
   blue: '#0097e6',
   red: '#e84118',
 };
-
 export default GlobalStyle;
