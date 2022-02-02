@@ -6,11 +6,8 @@ function Router() {
   return (
     <BrowserRouter>
       <Switch>
-        <Route path="/" exact>
+        <Route path={['/', '/:coinId']} exact>
           <Home />
-        </Route>
-        <Route path="/trade" exact>
-          <Trade />
         </Route>
       </Switch>
     </BrowserRouter>
