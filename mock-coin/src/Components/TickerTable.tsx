@@ -40,6 +40,7 @@ function TickerTable() {
   //console.log(coins[`BTC_KRW`].closePrice);
 
   useEffect(() => {
+    /*
     const websocket = new W3CWebSocket('wss://pubwss.bithumb.com/pub/ws');
 
     websocket.onopen = () => {
@@ -78,7 +79,7 @@ function TickerTable() {
 
     return () => {
       websocket.close();
-    };
+    };*/
   }, []);
 
   console.log(coins);

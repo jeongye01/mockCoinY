@@ -16,9 +16,6 @@ export function fetchCoins() {
 export function fetchBithumbTickers() {
   return bithumb.get('/ticker/ALL_KRW').then((response) => response.data);
 }
-export function fetchBithumbTicker(symbol: string) {
-  return bithumb.get(`/ticker/${symbol}_KRW`).then((response) => response.data);
-}
 
 export async function fetchPriceHistory(symbol: string) {
   try {

@@ -1,93 +1,87 @@
 import { useState, useEffect } from 'react';
 import { useParams, useLocation } from 'react-router-dom';
-import { w3cwebsocket as W3CWebSocket } from 'websocket';
-interface RouteState {
-  volume: number;
-  lowPrice: number;
-  highPrice: number;
-  closePrice: number;
-  prevClosePrice: number;
-  chgRate: number;
-  value: number;
-}
+import { useRecoilValue } from 'recoil';
+import styled from 'styled-components';
+import { coinListState } from '../atoms';
 
+const Container = styled.div`
+  background-color: ${(props) => props.theme.panelColor};
+  border-radius: 10px;
+  box-shadow: ${(props) => props.theme.boxShadow};
+  padding: 10px;
+`;
+const InfoRow = styled.div`
+  display: flex;
+  padding: 5px;
+  align-items: center;
+  div {
+    color: gray;
+    margin-right: 15px;
+  }
+  &:last-child {
+    font-size: 14px;
+  }
+`;
+const PriceRate = styled.span<{ isRaised?: boolean }>`
+  span:first-child {
+    font-size: 20px;
+    font-weight: 600;
+    margin-right: 5px;
+  }
+  color: ${(props) => (props.isRaised ? props.theme.red : props.theme.blue)};
+`;
+const HighLow = styled.div`
+  display: flex;
+
+  div:first-child {
+    margin-right: 10px;
+    span:last-child {
+      color: ${(props) => props.theme.red};
+    }
+  }
+  div:last-child {
+    span:last-child {
+      color: ${(props) => props.theme.blue};
+    }
+  }
+`;
 function CoinOutline() {
   const { coinId } = useParams<{ coinId: string }>();
-  const { state } = useLocation<RouteState>();
-  const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [coin, setCoin] = useState<RouteState>();
+  const coins = useRecoilValue(coinListState);
   console.log(coinId);
-  useEffect(() => {
-    const websocket = new W3CWebSocket('wss://pubwss.bithumb.com/pub/ws');
-
-    websocket.onopen = () => {
-      const msg = { type: 'ticker', symbols: [`${coinId}_KRW`], tickTypes: ['24H'] };
-      websocket.send(JSON.stringify(msg));
-    };
-
-    websocket.onmessage = (event) => {
-      const data = JSON.parse(event.data.toString());
-      //console.log(data);
-      if (data?.type === 'ticker') {
-        const {
-          content: { volume, lowPrice, highPrice, closePrice, prevClosePrice, chgRate, value },
-        } = data;
-        //console.log(closePrice);
-
-        setCoin({
-          volume,
-          lowPrice,
-          highPrice,
-          closePrice,
-          prevClosePrice,
-          chgRate,
-          value,
-        });
-
-        setIsLoading(false);
-      }
-    };
-
-    //
-
-    return () => {
-      websocket.close();
-    };
-  }, []);
 
   return (
-    <div>
-      {isLoading ? (
-        <div>
+    <Container>
+      <InfoRow>
+        <img width="15px" height="15px" src={`https://cryptoicon-api.vercel.app/api/icon/${coinId.toLowerCase()}`} />{' '}
+        {coinId}
+      </InfoRow>
+      <InfoRow>
+        <PriceRate isRaised={coins[coinId]?.chgRate >= 0}>
+          <span>{Math.floor(coins[coinId]?.closePrice).toLocaleString()}</span>
+          <span>{coins[coinId]?.chgRate >= 0 ? `+${coins[coinId]?.chgRate}` : coins[coinId]?.chgRate}% </span>
+        </PriceRate>
+      </InfoRow>
+      <InfoRow>
+        <HighLow>
           <div>
-            {' '}
-            <img
-              width="15px"
-              height="15px"
-              src={`https://cryptoicon-api.vercel.app/api/icon/${coinId.toLowerCase()}`}
-            />{' '}
-            {coinId}{' '}
-          </div>{' '}
-          <div>{Math.floor(state?.closePrice).toLocaleString()} </div>{' '}
-          <div> {state?.chgRate >= 0 ? `+${state?.chgRate}` : state?.chgRate}% </div>{' '}
-          <div> {Math.floor(state?.value / 1000000)}백만 </div>
-        </div>
-      ) : (
-        <div>
-          <div>
-            <img
-              width="15px"
-              height="15px"
-              src={`https://cryptoicon-api.vercel.app/api/icon/${coinId.toLowerCase()}`}
-            />{' '}
-            {coinId}{' '}
+            <span>고가</span> <span>{Math.floor(coins[coinId]?.highPrice).toLocaleString()}</span>
           </div>
-          <div>{Math.floor(coin?.closePrice || 0).toLocaleString()} </div>
-          <div> {(coin?.chgRate || 0) >= 0 ? `+${coin?.chgRate}` : coin?.chgRate}% </div>
-          <div> {Math.floor((coin?.value || 0) / 1000000)}백만</div>
+          <div>
+            <span>저가</span> <span>{Math.floor(coins[coinId]?.lowPrice).toLocaleString()}</span>
+          </div>
+        </HighLow>
+
+        <div>
+          {' '}
+          <span>전일가</span> <span>{Math.floor(coins[coinId]?.prevClosePrice).toLocaleString()}</span>{' '}
         </div>
-      )}
-    </div>
+        <div>
+          {' '}
+          <span>거래대금</span> <span>{Math.floor(coins[coinId]?.value).toLocaleString()}</span>{' '}
+        </div>
+      </InfoRow>
+    </Container>
   );
 }
 

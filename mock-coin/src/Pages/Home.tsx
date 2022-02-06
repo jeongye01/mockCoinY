@@ -2,7 +2,7 @@ import styled from 'styled-components';
 import { Link } from 'react-router-dom';
 import { useMemo, useEffect, useState, useRef, useCallback } from 'react';
 import { useQuery, useQueryClient } from 'react-query';
-import { fetchBithumbTickers, fetchPriceHistory, fetchBithumbTicker } from '../Api';
+import { fetchBithumbTickers, fetchPriceHistory } from '../Api';
 //import CoinInfo from './Tickers/CoinInfo';
 
 import Tickers from './Tickers';
@@ -12,7 +12,6 @@ import { isDarkAtom } from '../atoms';
 const Container = styled.div`
   padding: 15px;
   display: flex;
-  flex-direction: column;
 `;
 
 const Header = styled.header`
@@ -55,8 +54,9 @@ function Home() {
   const setterFn = useSetRecoilState(isDarkAtom);
   return (
     <Container>
-      <button onClick={() => setterFn((prev) => !prev)}>Toggel Button</button>
-      <CoinOutline />
+      <div>
+        <CoinOutline />
+      </div>
       <Tickers />
     </Container>
   );
