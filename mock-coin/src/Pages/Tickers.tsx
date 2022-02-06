@@ -2,9 +2,11 @@ import styled from 'styled-components';
 import { Link } from 'react-router-dom';
 import { useMemo, useEffect, useState, useRef, useCallback } from 'react';
 import { useQuery, useQueryClient } from 'react-query';
-import { fetchBithumbTickers } from '../../Api';
-import CoinInfo from './CoinInfo';
+import { fetchBithumbTickers } from '../Api';
 
+import { useRecoilValue, useSetRecoilState } from 'recoil';
+import { Iticker, coinListState } from '../atoms';
+import TickerTable from '../Components/TickerTable';
 const Container = styled.div`
   width: 380px;
   background-color: ${(props) => props.theme.panelColor};
@@ -74,28 +76,17 @@ const Table = styled.table`
   }
 `;
 
-interface Iticker {
-  symbol: string;
-  closePrice: number;
-  chgRate: number;
-  value: number;
-  lowPrice: number;
-  highPrice: number;
-  prevClosePrice: number;
-  volume: number;
-}
 //Itickers[]
 //any 고치기
 function Tickers() {
-  const [initCoins, setInitCoins] = useState<Iticker[]>();
   const [isLoading, setIsLoading] = useState(true);
-
+  const setCoinListState = useSetRecoilState(coinListState);
   useEffect(() => {
     fetchBithumbTickers().then((result) => {
       const { data: tickers } = result;
       const symbols = Object.keys(tickers).slice(0, 100);
 
-      let tmpArr: Iticker[] = [];
+      let tmpObj = {};
       symbols?.forEach((symbol) => {
         const {
           min_price,
@@ -107,23 +98,26 @@ function Tickers() {
           acc_trade_value_24H,
         } = tickers[symbol];
 
-        tmpArr.push({
-          symbol,
-          closePrice: closing_price,
-          chgRate: fluctate_rate_24H,
-          value: acc_trade_value_24H,
-          lowPrice: min_price,
-          highPrice: max_price,
-          prevClosePrice: prev_closing_price,
-          volume: units_traded_24H,
-        });
+        tmpObj = {
+          ...tmpObj,
+          [symbol]: {
+            symbol,
+            closePrice: closing_price,
+            chgRate: fluctate_rate_24H,
+            value: acc_trade_value_24H,
+            lowPrice: min_price,
+            highPrice: max_price,
+            prevClosePrice: prev_closing_price,
+            volume: units_traded_24H,
+          },
+        };
       });
+      setCoinListState(tmpObj);
 
-      setInitCoins(tmpArr);
       setIsLoading(false);
     });
   }, []);
-  console.log(initCoins);
+  console.log('ticker render');
   return (
     <>
       {isLoading ? (
@@ -140,9 +134,7 @@ function Tickers() {
               </tr>
             </thead>
             <tbody>
-              {initCoins?.slice(0, 100).map((coin) => (
-                <CoinInfo symbol={coin.symbol} initCoin={coin} key={coin.symbol} />
-              ))}
+              <TickerTable />
             </tbody>
           </Table>
         </Container>

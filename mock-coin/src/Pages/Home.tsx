@@ -5,7 +5,7 @@ import { useQuery, useQueryClient } from 'react-query';
 import { fetchBithumbTickers, fetchPriceHistory, fetchBithumbTicker } from '../Api';
 //import CoinInfo from './Tickers/CoinInfo';
 
-import Tickers from './Tickers/Tickers';
+import Tickers from './Tickers';
 import CoinOutline from './CoinOuline';
 import { useSetRecoilState } from 'recoil';
 import { isDarkAtom } from '../atoms';
@@ -56,6 +56,7 @@ function Home() {
   return (
     <Container>
       <button onClick={() => setterFn((prev) => !prev)}>Toggel Button</button>
+      <CoinOutline />
       <Tickers />
     </Container>
   );
