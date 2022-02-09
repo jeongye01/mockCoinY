@@ -1,12 +1,10 @@
 import styled from 'styled-components';
 import { Link, useLocation, useParams, useRouteMatch } from 'react-router-dom';
 import { useMemo, useEffect, useState, useCallback } from 'react';
-import { useQuery } from 'react-query';
-import { fetchBithumbTicker, fetchPriceHistory } from '../Api';
 
 import { w3cwebsocket as W3CWebSocket } from 'websocket';
-import { Iticker, coinListState } from '../atoms';
-import { useRecoilState } from 'recoil';
+import { Iticker, coinListState, focusedCoin } from '../atoms';
+import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
 
 const CoinRow = styled.tr<{ isFocused: boolean }>`
   border: 3px solid ${(props) => (props.isFocused ? props.theme.accentColor : 'inherit')};
@@ -33,6 +31,7 @@ function TickerTable() {
   //const [isLoading, setIsLoading] = useState<boolean>(true);
   const [coins, setCoins] = useRecoilState(coinListState);
   const { coinId } = useParams<{ coinId: string }>();
+  const setFocusedCoin = useSetRecoilState(focusedCoin);
   console.log(coinId);
   //
 
@@ -86,7 +85,7 @@ function TickerTable() {
   return (
     <>
       {Object.keys(coins).map((coin) => (
-        <Link to={`/${coin}`} key={coin}>
+        <Link onClick={() => setFocusedCoin(coin)} to={`/${coin}`} key={coin}>
           <CoinRow isFocused={coinId === coin}>
             <Symbol>
               {' '}

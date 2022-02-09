@@ -34,7 +34,7 @@ export const lightTheme: DefaultTheme = {
   bgColor: '#FAFAFA',
   textColor: 'black',
   accentColor: '#fbc531',
-  lineColor: '#dcdde1',
+  lineColor: '#F7F7F7',
   panelColor: '#ffffff',
   blue: '#0097e6',
   red: '#e84118',

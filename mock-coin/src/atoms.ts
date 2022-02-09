@@ -21,3 +21,7 @@ export const coinListState = atom<any>({
   key: 'coins',
   default: {},
 });
+export const focusedCoin = atom<string>({
+  key: 'focused',
+  default: 'BTC',
+});

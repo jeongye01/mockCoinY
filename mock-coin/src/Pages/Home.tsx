@@ -1,14 +1,14 @@
 import styled from 'styled-components';
-import { Link } from 'react-router-dom';
-import { useMemo, useEffect, useState, useRef, useCallback } from 'react';
-import { useQuery, useQueryClient } from 'react-query';
-import { fetchBithumbTickers, fetchPriceHistory } from '../Api';
-//import CoinInfo from './Tickers/CoinInfo';
-
+import Candlestick from './Candlestick';
 import Tickers from './Tickers';
 import CoinOutline from './CoinOuline';
-import { useSetRecoilState } from 'recoil';
-import { isDarkAtom } from '../atoms';
+import { useRecoilValue, useSetRecoilState } from 'recoil';
+import { focusedCoin, isDarkAtom } from '../atoms';
+import { useHistory } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import Orderbook from './Orderbook';
+import Transactions from './Transactions';
+import Trade from './Trade';
 const Container = styled.div`
   padding: 15px;
   display: flex;
@@ -52,13 +52,31 @@ const CoinList = styled.ul`
 
 function Home() {
   const setterFn = useSetRecoilState(isDarkAtom);
+  const history = useHistory();
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const defaultCoin = useRecoilValue(focusedCoin);
+
+  useEffect(() => {
+    history.push(`/${defaultCoin}`);
+    setIsLoading(false);
+  }, []);
   return (
-    <Container>
-      <div>
-        <CoinOutline />
-      </div>
-      <Tickers />
-    </Container>
+    <>
+      {isLoading ? null : (
+        <Container>
+          <div>
+            <CoinOutline />
+            <Candlestick />
+            <Orderbook />
+            <div style={{ display: 'flex' }}>
+              <Transactions />
+              <Trade />
+            </div>
+          </div>
+          {/*<Tickers />*/}
+        </Container>
+      )}
+    </>
   );
 }
 

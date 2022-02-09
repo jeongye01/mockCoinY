@@ -1,25 +1,23 @@
 import axios from 'axios';
 
-const coinPaprika = axios.create({
-  baseURL: 'https://api.coinpaprika.com/v1',
-});
-
 const bithumb = axios.create({
   baseURL: 'https://api.bithumb.com/public',
 });
-/*
-export function fetchCoins() {
-  return instance.get('/coins?quotes=KRW').then((response) => response.data);
-}
-*/
+
 //비트썸
 export function fetchBithumbTickers() {
   return bithumb.get('/ticker/ALL_KRW').then((response) => response.data);
 }
 
-export async function fetchPriceHistory(symbol: string) {
+/*{order_currency} = 주문 통화(코인), 기본값 : BTC
+
+{payment_currency} = 결제 통화(마켓), 기본값 : KRW
+
+{chart_intervals} = 차트 간격, 기본값 : 24h {1m, 3m, 5m, 10m, 30m, 1h, 6h, 12h, 24h 사용 가능}
+*/
+export async function fetchCandlestick(order_currency: string, chart_intervals: string) {
   try {
-    const response = await bithumb.get(`/transaction_history/${symbol}_KRW`);
+    const response = await bithumb.get(`/candlestick/${order_currency}_KRW/${chart_intervals}`);
     const { data } = response;
     return data;
   } catch (error) {
@@ -27,24 +25,28 @@ export async function fetchPriceHistory(symbol: string) {
     return null;
   }
 }
-/*
-export function fetchOneTicker(coin: string) {
-  return instance.get(`/ticker/${coin}_KRW`).then((response) => response.data);
+
+export async function fetchOrderbook(order_currency: string) {
+  try {
+    console.log(order_currency);
+    const response = await bithumb.get(`/orderbook/XRP_KRW`);
+    const { data } = response;
+
+    return data;
+  } catch (error) {
+    console.error(error);
+    return null;
+  }
 }
+export async function fetchTransactions(order_currency: string) {
+  try {
+    console.log(order_currency);
+    const response = await bithumb.get(`/transaction_history/${order_currency}_KRW`);
+    const { data } = response;
 
-export const fecthMajorCoins = async () => {
-  const tickers = await fetchTickers();
-  const majorCoins = Object.keys(tickers.data).slice(0, 7);
-  const ret = await majorCoins.map(async (coin) => await fetchOneTicker(coin));
-  return ret;
-};
-
-export function fetchCoinInfo(coinId: string) {
-  return instance.get(`/coins/${coinId}?quotes=KRW`).then((response) => response.data);
+    return data.data;
+  } catch (error) {
+    console.error(error);
+    return null;
+  }
 }
-
-export function fetchCoinTickers(coinId: string) {
-  return instance.get(`/tickers/${coinId}?quotes=KRW`).then((response) => response.data);
-}
-
-*/

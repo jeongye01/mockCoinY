@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useParams, useLocation } from 'react-router-dom';
-import { useRecoilValue } from 'recoil';
+import { useRecoilValue, useSetRecoilState } from 'recoil';
 import styled from 'styled-components';
-import { coinListState } from '../atoms';
+import { coinListState, focusedCoin } from '../atoms';
 
 const Container = styled.div`
   background-color: ${(props) => props.theme.panelColor};
@@ -46,7 +46,7 @@ const HighLow = styled.div`
   }
 `;
 function CoinOutline() {
-  const { coinId } = useParams<{ coinId: string }>();
+  const coinId = useRecoilValue(focusedCoin);
   const coins = useRecoilValue(coinListState);
   console.log(coinId);
 
