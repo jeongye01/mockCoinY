@@ -84,12 +84,12 @@ const Setting = styled.div`
       width: 10%;
       text-align: center;
       &:last-child {
-        border-radius: 0px 10px 10px 0px;
+        border-radius: 0px 15px 15px 0px;
       }
     }
     input {
       all: unset;
-      border-radius: 10px 0 0 10px;
+      border-radius: 15px 0 0 15px;
       border: 1px solid ${(props) => props.theme.lineColor};
       background-color: ${(props) => props.theme.panelColor};
       width: 80%;

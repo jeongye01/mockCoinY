@@ -6,8 +6,72 @@ import { fetchOrderbook, fetchTransactions } from '../Api';
 import styled from 'styled-components';
 
 const Container = styled.div`
-  display: flex;
-  flex-direction: column-reverse;
+  width: 290px;
+  background-color: ${(props) => props.theme.panelColor};
+  box-shadow: ${(props) => props.theme.boxShadow};
+  border-radius: 15px;
+`;
+const Table = styled.table`
+  table-layout: fixed;
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+  white-space: nowrap;
+  tbody {
+    overflow-y: scroll;
+    //display: block;
+    height: 580px;
+    display: flex;
+    flex-direction: column-reverse;
+    &::-webkit-scrollbar-thumb {
+      background-color: ${(props) => props.theme.lineColor};
+      height: 5px;
+    }
+    &::-webkit-scrollbar {
+      opacity: 0;
+      width: 2px;
+    }
+  }
+  tr {
+    display: flex;
+    width: 100%;
+    padding: 10px;
+  }
+
+  thead th {
+    opacity: 0.7;
+    border-top: 1px solid ${(props) => props.theme.lineColor};
+    padding: 10px 0;
+    border-bottom: 1px solid ${(props) => props.theme.lineColor};
+  }
+  tbody tr {
+    &:hover {
+      background-color: ${(props) => props.theme.accentColor};
+    }
+  }
+  thead th,
+  tbody td {
+    text-align: end;
+  }
+  thead th:nth-child(1),
+  tbody td:nth-child(1) {
+    width: 33%;
+    text-align: start;
+  }
+
+  thead th:nth-child(2),
+  tbody td:nth-child(2) {
+    width: 33%;
+  }
+
+  thead th:last-child,
+  tbody td:last-child {
+    width: 33%;
+  }
+`;
+
+const ColorCol = styled.td<{ type: string }>`
+  color: ${(props) => (props.type === 'bid' ? props.theme.red : props.theme.blue)};
 `;
 //time 형태를 제한할 수 있도록 만들어 보기
 interface Itransaction {
@@ -82,13 +146,26 @@ function Transactions() {
         <h1>transactions</h1>
       ) : (
         <Container>
-          {' '}
-          {transactions?.map((transaction) => (
-            <h1>
-              {transaction?.transaction_date.slice(11, 19)} {Math.floor(transaction?.price).toLocaleString()}{' '}
-              {`${Math.round(transaction?.units_traded * 10000) / 10000} ${coinId}`}
-            </h1>
-          ))}
+          <Table>
+            <thead>
+              <tr>
+                <th>체결시간</th>
+                <th>가격</th>
+                <th>수량</th>
+              </tr>
+            </thead>
+            <tbody>
+              {transactions?.map((transaction) => (
+                <tr>
+                  <td>{transaction?.transaction_date.slice(11, 19)}</td>
+                  <ColorCol type={transaction.type}>{Math.floor(transaction?.price).toLocaleString()}</ColorCol>
+                  <ColorCol type={transaction.type}>{`${
+                    Math.round(transaction?.units_traded * 10000) / 10000
+                  }`}</ColorCol>
+                </tr>
+              ))}
+            </tbody>
+          </Table>
         </Container>
       )}
     </>
