@@ -9,9 +9,12 @@ import { useEffect, useState } from 'react';
 import Orderbook from './Orderbook';
 import Transactions from './Transactions';
 import Trade from './Trade';
+import RevenueStatus from './RevenueStatus';
 const Container = styled.div`
+  width: 100%;
   padding: 15px;
   display: flex;
+  justify-content: space-between;
 `;
 
 const Header = styled.header`
@@ -67,10 +70,11 @@ function Home() {
           <div>
             <CoinOutline />
             <Candlestick />
-            <Orderbook />
+
             <div style={{ display: 'flex' }}>
-              <Transactions />
+              {/*<Transactions />*/}
               <Trade />
+              <RevenueStatus />
             </div>
           </div>
           <Tickers />

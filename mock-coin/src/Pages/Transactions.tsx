@@ -94,6 +94,7 @@ function Transactions() {
     //
   }, [coinId]);
   useEffect(() => {
+    /*
     const websocket = new W3CWebSocket('wss://pubwss.bithumb.com/pub/ws');
 
     websocket.onopen = () => {
@@ -135,7 +136,7 @@ function Transactions() {
 
     return () => {
       websocket.close();
-    };
+    };*/
   }, [transactions]);
   return (
     <>

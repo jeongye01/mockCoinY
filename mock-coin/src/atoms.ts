@@ -25,3 +25,9 @@ export const focusedCoin = atom<string>({
   key: 'focused',
   default: 'BTC',
 });
+
+interface IholdingCoin {
+  name: string;
+  holdingQuantity: number;
+  coinYield: number;
+}

@@ -1,5 +1,7 @@
 import { useState } from 'react';
+import { useRecoilValue } from 'recoil';
 import styled from 'styled-components';
+import { coinListState, focusedCoin } from '../atoms';
 
 const Container = styled.div`
   display: flex;
@@ -59,7 +61,7 @@ const UserInfo = styled.div`
   }
   margin-bottom: 10px;
 `;
-const Form = styled.form`
+const Form = styled.div`
   width: 100%;
 `;
 const Setting = styled.div`
@@ -143,6 +145,22 @@ const Submit = styled.div<{ isBidSelected: boolean }>`
 `;
 function Trade() {
   const [bidSelected, setBidSelected] = useState<boolean>(true);
+  const [quantity, setQuantity] = useState<number>();
+  const coins = useRecoilValue(coinListState);
+  const coinId = useRecoilValue(focusedCoin); /*
+  const onClickPlus = (e: React.MouseEventHandler<HTMLButtonElement>) => {
+    setQuantity((prev) => (prev ? (prev += 1) : 0));
+  };
+  const onClickMinus = (e: React.MouseEventHandler<HTMLButtonElement>) => {
+    setQuantity((prev) => (prev ? (prev -= 1) : 100));
+  };*/
+  const onQuantityChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const {
+      target: { value },
+    } = event;
+    console.log(value);
+    setQuantity(value === '' ? 0 : parseInt(value));
+  };
   return (
     <Container>
       <TradeType isBidSelected={bidSelected}>
@@ -155,11 +173,11 @@ function Trade() {
         <UserInfo>
           <div>
             <span>보유</span>
-            <span>{bidSelected ? `719KRW` : `6.0000XRP`}</span>
+            <span>{bidSelected ? `719KRW` : `6.0000 ${coinId}`}</span>
           </div>
           <div>
             <span>매{bidSelected ? `수` : `도`} 가능</span>
-            <span>{bidSelected ? `719KRW` : `6.0000XRP`}</span>
+            <span>{bidSelected ? `719KRW` : `6.0000 ${coinId}`}</span>
           </div>
         </UserInfo>
 
@@ -167,17 +185,17 @@ function Trade() {
           <Setting>
             <span>가격(KRW)</span>
             <div>
-              <input value="981" />
+              <input value={coins[coinId]?.closePrice || 0} />
               <button>+</button>
               <button>-</button>
             </div>
           </Setting>
           <Setting>
-            <span>수량(XRP)</span>
+            <span>수량{`(${coinId})`}</span>
             <div>
-              <input value="981" />
-              <button>+</button>
-              <button>-</button>
+              <input value={quantity} onChange={onQuantityChange} />
+              <button onClick={() => setQuantity((prev) => (prev ? (prev += 1) : 100))}>+</button>
+              <button onClick={() => setQuantity((prev) => (prev ? (prev -= 1) : 0))}>-</button>
             </div>
           </Setting>
           <Percentage>
