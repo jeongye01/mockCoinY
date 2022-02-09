@@ -44,11 +44,7 @@ const Table = styled.table`
     padding: 10px 0;
     border-bottom: 1px solid ${(props) => props.theme.lineColor};
   }
-  tbody tr {
-    &:hover {
-      background-color: ${(props) => props.theme.accentColor};
-    }
-  }
+
   thead th,
   tbody td {
     text-align: end;
@@ -96,7 +92,7 @@ function Transactions() {
     //setIsLoading(false);
 
     //
-  }, [coinId]); /*
+  }, [coinId]);
   useEffect(() => {
     const websocket = new W3CWebSocket('wss://pubwss.bithumb.com/pub/ws');
 
@@ -116,11 +112,12 @@ function Transactions() {
         //any 고치기
         list.forEach((li: any) => {
           const { contDtm, buySellGb, contQty, contPrice, contAmt } = li;
+          console.log(buySellGb);
           tmpArr = [
             ...tmpArr,
             {
               transaction_date: contDtm,
-              type: buySellGb === 1 ? 'ask' : 'bid',
+              type: buySellGb === '1' ? 'ask' : 'bid',
               units_traded: contQty,
               price: contPrice,
               total: contAmt,
@@ -139,7 +136,7 @@ function Transactions() {
     return () => {
       websocket.close();
     };
-  }, [transactions]);*/
+  }, [transactions]);
   return (
     <>
       {isLoading ? (

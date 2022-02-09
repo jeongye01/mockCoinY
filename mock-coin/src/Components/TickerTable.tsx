@@ -8,6 +8,9 @@ import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
 
 const CoinRow = styled.tr<{ isFocused: boolean }>`
   border: 3px solid ${(props) => (props.isFocused ? props.theme.accentColor : 'inherit')};
+  &:hover {
+    background-color: ${(props) => props.theme.accentColor};
+  }
 `;
 const Symbol = styled.td`
   display: flex;
@@ -39,7 +42,6 @@ function TickerTable() {
   //console.log(coins[`BTC_KRW`].closePrice);
 
   useEffect(() => {
-    /*
     const websocket = new W3CWebSocket('wss://pubwss.bithumb.com/pub/ws');
 
     websocket.onopen = () => {
@@ -78,7 +80,7 @@ function TickerTable() {
 
     return () => {
       websocket.close();
-    };*/
+    };
   }, []);
 
   console.log(coins);

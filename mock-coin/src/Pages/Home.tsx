@@ -73,7 +73,7 @@ function Home() {
               <Trade />
             </div>
           </div>
-          {/*<Tickers />*/}
+          <Tickers />
         </Container>
       )}
     </>
