@@ -172,7 +172,7 @@ function Trade() {
       <Main>
         <UserInfo>
           <div>
-            <span>보유</span>
+            <span>주문가능</span>
             <span>{bidSelected ? `719KRW` : `6.0000 ${coinId}`}</span>
           </div>
           <div>
