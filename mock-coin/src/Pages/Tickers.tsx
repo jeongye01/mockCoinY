@@ -13,8 +13,9 @@ import { useSelector, useDispatch } from 'react-redux';
 import { useLocation, useParams, useRouteMatch } from 'react-router-dom';
 import { useTable } from 'react-table';
 import { w3cwebsocket as W3CWebSocket } from 'websocket';
-import { rawListeners } from 'process';
+import { setCoinList, CoinState } from '../coinListSlice';
 import TradePrice from '../Components/TradePrice';
+import Search from './Search';
 //,Acc,Rate
 interface ICoinRow {
   isFocused: boolean;
@@ -78,23 +79,11 @@ const CoinRow = styled.div<ICoinRow>`
 
 const Table = styled.div`
   display: flex;
-
-  flex-direction: column;
-`;
-
-interface Iprops {
-  symbol: string;
-}
-
-const Container = styled.div`
-  width: 400px;
-  min-width: 400px;
-  max-width: 400px;
   height: 620px;
+  flex-direction: column;
+  width: 100%;
+  height: 600px;
   overflow-y: scroll;
-  background-color: ${(props) => props.theme.panelColor};
-  border-radius: 10px;
-  box-shadow: ${(props) => props.theme.boxShadow};
   &::-webkit-scrollbar-thumb {
     background-color: ${(props) => props.theme.lineColor};
     height: 5px;
@@ -105,26 +94,67 @@ const Container = styled.div`
   }
 `;
 
+interface Iprops {
+  symbol: string;
+}
+const TableHead = styled.div`
+  display: flex;
+  background-color: ${(props) => props.theme.lightGray};
+  padding: 6px 13px;
+  div {
+    font-size: 13px;
+    font-weight: 600;
+    opacity: 0.5;
+  }
+  div:first-child {
+    width: 10%;
+  }
+  div:nth-child(2) {
+    width: 30%;
+    text-align: start;
+  }
+  div:nth-child(3) {
+    width: 20%;
+    text-align: center;
+  }
+  div:nth-child(4) {
+    width: 20%;
+    text-align: end;
+  }
+  div:last-child {
+    width: 20%;
+    text-align: end;
+  }
+`;
+const Container = styled.div`
+  width: 400px;
+  min-width: 400px;
+  max-width: 400px;
+
+  background-color: ${(props) => props.theme.panelColor};
+  border-bottom-left-radius: 10px;
+  border-bottom-right-radius: 10px;
+  box-shadow: ${(props) => props.theme.boxShadow};
+`;
+
 //Itickers[]
 //any 고치기
-interface ICoin {
-  market: string;
-  korean_name: string;
-  english_name: string;
-}
+
 function Tickers() {
+  // const [searchTerm, setSearchTerm] = useState<string>('');
   const tickerList = useSelector((state: RootState) => state.tickerList);
+  const coinList = useSelector((state: RootState) => state.coinList);
   const dispatch = useDispatch();
   const { coinId: coinOnUrl } = useParams<{ coinId: string }>();
   const [isLoading, setIsLoading] = useState(true);
-  const setCoinListState = useSetRecoilState(coinListState);
-  const [coinList, setCoinList] = useState<ICoin[]>();
+  const coinSearchResult = useSelector((state: RootState) => state.coinSearchResult);
+  // const [coinList, setCoinList] = useState<ICoin[]>();
   useEffect(() => {
     const getCoins = async () => await getCoinList();
-    getCoins().then((data: ICoin[]) => {
+    getCoins().then((data: CoinState[]) => {
       if (data) {
         const krwCoins = data.filter((coin) => coin.market.split('-')[0] === 'KRW');
-        setCoinList(krwCoins);
+        dispatch(setCoinList(krwCoins));
       }
     });
   }, []);
@@ -134,10 +164,10 @@ function Tickers() {
     websocket.onopen = (e) => {
       console.log('connected', e);
       const id = uuidv4();
-      const codes = coinList.map((coin) => coin.market);
+      const codes = coinList?.value?.map((coin) => coin.market);
 
       // const msg = { type: 'ticker', codes };
-      websocket.send(JSON.stringify([{ ticket: id }, { type: 'ticker', codes }]));
+      websocket.send(JSON.stringify([{ ticket: id }, { type: 'ticker', codes, isOnlySnapshot: true }]));
     }; //[{ ticket: id }, { type: 'ticker', codes,isOnlySnapshot:true }]
     websocket.onmessage = async (event) => {
       const { data } = event;
@@ -159,14 +189,23 @@ function Tickers() {
   return (
     <>
       {' '}
-      {Object.keys(tickerList?.value)?.length !== coinList?.length ? (
+      {Object.keys(tickerList?.value)?.length !== coinList?.value?.length ? (
         'Loading...'
       ) : (
         <Container>
+          <Search />
+          <TableHead>
+            <div></div>
+            <div>한글명</div>
+            <div>현재가</div>
+            <div>전일대비</div>
+            <div>거래대금</div>
+          </TableHead>
           <Table>
-            {coinList?.map((coin, i) => {
+            {coinSearchResult?.value?.map((coin, i) => {
               const { trade_price, change, signed_change_price, signed_change_rate, acc_trade_price_24h } =
                 tickerList?.value?.[coin.market];
+
               return (
                 <Link key={i} to={`/${coin.market}`}>
                   <CoinRow isFocused={coin.market === coinOnUrl} change={tickerList?.value?.[coin.market]?.change}>

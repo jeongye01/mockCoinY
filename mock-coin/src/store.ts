@@ -1,8 +1,12 @@
 import { configureStore } from '@reduxjs/toolkit';
 import TickerListReducer from './tickerListSlice';
+import CoinListReducer from './coinListSlice';
+import CoinSearchReducer from './coinSearchSlice';
 export const store = configureStore({
   reducer: {
     tickerList: TickerListReducer,
+    coinList: CoinListReducer,
+    coinSearchResult: CoinSearchReducer,
   },
 });
 

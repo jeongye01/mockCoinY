@@ -46,13 +46,17 @@ function usePrevious(value: number) {
 }
 function TradePrice({ price, change, index }: Props) {
   const previousPrice = usePrevious(price);
-  console.log(previousPrice, price, Math.random().toFixed(1));
+  // console.log(previousPrice, price, Math.random().toFixed(1));
 
   return (
     <>
-      <Container previousPrice={previousPrice || 0} price={price} change={(previousPrice || 0) - price}>
-        {price}
-      </Container>
+      {!previousPrice ? (
+        <div>{price}</div>
+      ) : (
+        <Container previousPrice={previousPrice} price={price} change={(previousPrice || 0) - price}>
+          {price}
+        </Container>
+      )}
     </>
   );
 }
