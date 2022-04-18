@@ -1,5 +1,13 @@
 import axios from 'axios';
 
+const instance = axios.create({
+  baseURL: 'https://api.upbit.com/v1',
+});
+
+export const getCoinList = async () => {
+  return instance.get('/market/all').then((response) => response.data);
+};
+
 const bithumb = axios.create({
   baseURL: 'https://api.bithumb.com/public',
 });

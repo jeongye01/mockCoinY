@@ -28,6 +28,7 @@ export const darkTheme: DefaultTheme = {
   panelColor: '#ffffff',
   blue: '#0097e6',
   red: '#e84118',
+  lightGray: 'f4f5f8',
 };
 export const lightTheme: DefaultTheme = {
   boxShadow: 'rgba(0, 0, 0, 0.1) 0px 1px 3px 0px, rgba(0, 0, 0, 0.06) 0px 1px 2px 0px',
@@ -38,5 +39,6 @@ export const lightTheme: DefaultTheme = {
   panelColor: '#ffffff',
   blue: '#0097e6',
   red: '#e84118',
+  lightGray: '#f4f5f8',
 };
 export default GlobalStyle;

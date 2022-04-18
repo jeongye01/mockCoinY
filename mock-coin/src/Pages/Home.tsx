@@ -67,16 +67,6 @@ function Home() {
     <>
       {isLoading ? null : (
         <Container>
-          <div>
-            <CoinOutline />
-            <Candlestick />
-
-            <div style={{ display: 'flex' }}>
-              {/*<Transactions />*/}
-              <Trade />
-              <RevenueStatus />
-            </div>
-          </div>
           <Tickers />
         </Container>
       )}
@@ -85,3 +75,25 @@ function Home() {
 }
 
 export default Home;
+
+/*
+  {isLoading ? null : (
+        <Container>
+          <div>
+            <CoinOutline />
+            <Candlestick />
+
+            <div style={{ display: 'flex' }}>
+              {
+            }
+              <Trade />
+              <RevenueStatus />
+            </div>
+          </div>
+          <Tickers />
+        </Container>
+      )}
+
+
+
+*/

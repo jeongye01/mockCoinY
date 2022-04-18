@@ -10,5 +10,6 @@ declare module 'styled-components' {
     panelColor: string;
     blue: string;
     red: string;
+    lightGray: string;
   }
 }
