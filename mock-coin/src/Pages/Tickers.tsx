@@ -2,16 +2,12 @@ import styled, { css, keyframes } from 'styled-components';
 import { Link } from 'react-router-dom';
 import React, { useMemo, useEffect, useState, useRef, useCallback } from 'react';
 import { useQuery, useQueryClient } from 'react-query';
-import { fetchBithumbTickers, getCoinList } from '../Api';
+import { getCoinList } from '../Api';
 import { v4 as uuidv4 } from 'uuid';
-import { useRecoilValue, useSetRecoilState } from 'recoil';
-import { Iticker, coinListState } from '../atoms';
-import TickerTable from '../Components/TickerTable';
 import { updateTickers } from '../tickerListSlice';
 import { RootState } from '../store';
 import { useSelector, useDispatch } from 'react-redux';
 import { useLocation, useParams, useRouteMatch } from 'react-router-dom';
-import { useTable } from 'react-table';
 import { w3cwebsocket as W3CWebSocket } from 'websocket';
 import { setCoinList, CoinState } from '../coinListSlice';
 import TradePrice from '../Components/TradePrice';
@@ -24,10 +20,6 @@ interface ICoinRow {
 }
 
 const CoinRow = styled.div<ICoinRow>`
-  /*border: 3px solid ${(props) => (props.isFocused ? props.theme.accentColor : 'inherit')};
-  &:hover {
-    background-color: ${(props) => props.theme.accentColor};
-  }*/
   border-top: 1px solid ${(props) => props.theme.lightGray};
   display: flex;
   align-items: start;
@@ -193,8 +185,8 @@ function Tickers() {
                 tickerList?.value?.[coin.market];
 
               return (
-                <Link key={i} to={`/${coin.market}`}>
-                  <CoinRow isFocused={coin.market === coinOnUrl} change={tickerList?.value?.[coin.market]?.change}>
+                <Link key={i} to={{ pathname: `/${coin.market}`, state: { korean_name: coin.korean_name } }}>
+                  <CoinRow isFocused={coin.market === coinOnUrl} change={change}>
                     <div>★</div>
                     <div>
                       <span>{coin.korean_name}</span>
@@ -205,8 +197,8 @@ function Tickers() {
                     <div>
                       {(tickerList?.value?.[coin.market] && (
                         <>
-                          <span>{(100 * tickerList?.value?.[coin.market].signed_change_rate).toFixed(2) || null}%</span>
-                          <span>{tickerList?.value?.[coin.market].signed_change_price.toLocaleString() || null}</span>
+                          <span>{(100 * signed_change_rate).toFixed(2) || null}%</span>
+                          <span>{signed_change_price.toLocaleString() || null}</span>
                         </>
                       )) ||
                         null}
@@ -214,9 +206,7 @@ function Tickers() {
                     <div>
                       {(tickerList?.value?.[coin.market] && (
                         <span>
-                          {Math.round(
-                            tickerList?.value?.[coin.market].acc_trade_price_24h / 1000000,
-                          ).toLocaleString() || null}
+                          {Math.round(acc_trade_price_24h / 1000000).toLocaleString() || null}
                           백만
                         </span>
                       )) ||

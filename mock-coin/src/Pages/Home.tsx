@@ -54,19 +54,19 @@ const CoinList = styled.ul`
 `;
 
 function Home() {
-  const setterFn = useSetRecoilState(isDarkAtom);
   const history = useHistory();
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const defaultCoin = useRecoilValue(focusedCoin);
 
   useEffect(() => {
-    history.push(`/${defaultCoin}`);
+    history.push(`/KRW-BTC`);
     setIsLoading(false);
   }, []);
   return (
     <>
       {isLoading ? null : (
         <Container>
+          <CoinOutline />
           <Tickers />
         </Container>
       )}
