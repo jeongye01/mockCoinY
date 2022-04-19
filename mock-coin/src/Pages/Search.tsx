@@ -11,7 +11,8 @@ import { useLocation, useParams, useRouteMatch } from 'react-router-dom';
 
 import { setCoinList, CoinState } from '../coinListSlice';
 import { setCoinSearchResult } from '../coinSearchSlice';
-
+import { choseongExtraction, isOnlychoseong, searchFilter } from '../lilbs/utils';
+import * as hangul from 'hangul-js';
 //Itickers[]
 //any 고치기
 
@@ -27,10 +28,9 @@ function Search() {
   // const [coinList, setCoinList] = useState<ICoin[]>();
   useEffect(() => {
     if (coinList && !coinList.value) return;
-    const result = coinList.value.filter(
-      (coin) => coin.korean_name.includes(searchTerm) || coin.market.split('-')[1].includes(searchTerm.toUpperCase()),
-    );
-    console.log(result);
+    //검색어에 부합하는 코인 추출
+    const result = searchFilter(coinList.value, searchTerm);
+
     dispatch(setCoinSearchResult(result));
   }, [searchTerm]);
   return (
@@ -50,7 +50,7 @@ function Search() {
               if (searchQuery === searchRef.current?.value?.toUpperCase()) {
                 setSearchTerm(searchQuery || '');
               }
-            }, 400);
+            }, 500);
           }}
         />
       </form>
