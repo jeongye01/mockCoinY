@@ -16,6 +16,7 @@ import { w3cwebsocket as W3CWebSocket } from 'websocket';
 import { setCoinList, CoinState } from '../coinListSlice';
 import TradePrice from '../Components/TradePrice';
 import Search from './Search';
+import { setCoinSearchResult } from '../coinSearchSlice';
 //,Acc,Rate
 interface ICoinRow {
   isFocused: boolean;
@@ -83,6 +84,7 @@ const Table = styled.div`
   flex-direction: column;
   width: 100%;
   height: 600px;
+  min-height: 600px;
   overflow-y: scroll;
   &::-webkit-scrollbar-thumb {
     background-color: ${(props) => props.theme.lineColor};
@@ -94,9 +96,6 @@ const Table = styled.div`
   }
 `;
 
-interface Iprops {
-  symbol: string;
-}
 const TableHead = styled.div`
   display: flex;
   background-color: ${(props) => props.theme.lightGray};
@@ -132,28 +131,24 @@ const Container = styled.div`
   max-width: 400px;
 
   background-color: ${(props) => props.theme.panelColor};
-  border-bottom-left-radius: 10px;
-  border-bottom-right-radius: 10px;
+  border-radius: 10px;
+
   box-shadow: ${(props) => props.theme.boxShadow};
 `;
 
-//Itickers[]
-//any 고치기
-
 function Tickers() {
-  // const [searchTerm, setSearchTerm] = useState<string>('');
   const tickerList = useSelector((state: RootState) => state.tickerList);
   const coinList = useSelector((state: RootState) => state.coinList);
   const dispatch = useDispatch();
-  const { coinId: coinOnUrl } = useParams<{ coinId: string }>();
-  const [isLoading, setIsLoading] = useState(true);
   const coinSearchResult = useSelector((state: RootState) => state.coinSearchResult);
-  // const [coinList, setCoinList] = useState<ICoin[]>();
+  const { coinId: coinOnUrl } = useParams<{ coinId: string }>();
+
   useEffect(() => {
     const getCoins = async () => await getCoinList();
     getCoins().then((data: CoinState[]) => {
       if (data) {
         const krwCoins = data.filter((coin) => coin.market.split('-')[0] === 'KRW');
+
         dispatch(setCoinList(krwCoins));
       }
     });
@@ -165,8 +160,6 @@ function Tickers() {
       console.log('connected', e);
       const id = uuidv4();
       const codes = coinList?.value?.map((coin) => coin.market);
-
-      // const msg = { type: 'ticker', codes };
       websocket.send(JSON.stringify([{ ticket: id }, { type: 'ticker', codes, isOnlySnapshot: true }]));
     }; //[{ ticket: id }, { type: 'ticker', codes,isOnlySnapshot:true }]
     websocket.onmessage = async (event) => {
@@ -180,28 +173,21 @@ function Tickers() {
     };
   }, [coinList]);
 
-  /*
-
-  */
-
-  //console.log(coinList);
-  //console.log(tickerList);
   return (
-    <>
-      {' '}
-      {Object.keys(tickerList?.value)?.length !== coinList?.value?.length ? (
-        'Loading...'
-      ) : (
-        <Container>
-          <Search />
-          <TableHead>
-            <div></div>
-            <div>한글명</div>
-            <div>현재가</div>
-            <div>전일대비</div>
-            <div>거래대금</div>
-          </TableHead>
-          <Table>
+    <Container>
+      <Search />
+      <TableHead>
+        <div></div>
+        <div>한글명</div>
+        <div>현재가</div>
+        <div>전일대비</div>
+        <div>거래대금</div>
+      </TableHead>
+      <Table>
+        {Object.keys(tickerList?.value)?.length !== coinList?.value?.length ? (
+          'Loading...'
+        ) : (
+          <>
             {coinSearchResult?.value?.map((coin, i) => {
               const { trade_price, change, signed_change_price, signed_change_rate, acc_trade_price_24h } =
                 tickerList?.value?.[coin.market];
@@ -219,7 +205,7 @@ function Tickers() {
                     <div>
                       {(tickerList?.value?.[coin.market] && (
                         <>
-                          <span>{(100 * tickerList?.value?.[coin.market].signed_change_rate).toFixed(2) || null}</span>
+                          <span>{(100 * tickerList?.value?.[coin.market].signed_change_rate).toFixed(2) || null}%</span>
                           <span>{tickerList?.value?.[coin.market].signed_change_price.toLocaleString() || null}</span>
                         </>
                       )) ||
@@ -240,10 +226,10 @@ function Tickers() {
                 </Link>
               );
             })}
-          </Table>
-        </Container>
-      )}
-    </>
+          </>
+        )}
+      </Table>
+    </Container>
   );
 }
 

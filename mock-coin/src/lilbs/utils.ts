@@ -27,7 +27,6 @@ export const choseongExtraction = (keyword: string) => {
     }
   }
   //console.log(result);
-
   return result;
 };
 
@@ -35,7 +34,7 @@ export const searchFilter = (coinList: CoinState[], searchTerm: string): CoinSta
   if (!searchTerm.trim()) return coinList;
   const result = coinList?.filter((coin) => {
     //초성만 입력
-    if (isOnlychoseong(searchTerm) || searchTerm.length === 1) {
+    if (isOnlychoseong(searchTerm)) {
       return (
         choseongExtraction(coin.korean_name).includes(choseongExtraction(searchTerm)) ||
         coin.market.split('-')[1].includes(searchTerm.toUpperCase())

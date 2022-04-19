@@ -8,6 +8,9 @@ export interface TickerState {
   signed_change_price: number; //전일 대비 값
   signed_change_rate: number; //전일대비 등락률
   acc_trade_price_24h: number; //24시간 누적 거래대금
+  high_price: number; //고가
+  low_price: number; //저가
+  acc_trade_volume_24h: number; //24시간 누적 거래량
 }
 export interface ITickers {
   value: { [key: string]: TickerState };
@@ -22,8 +25,18 @@ export const tickerListSlice = createSlice({
   initialState,
   reducers: {
     updateTickers: (state, action: PayloadAction<TickerState>) => {
-      const { code, korean_name, trade_price, change, signed_change_price, signed_change_rate, acc_trade_price_24h } =
-        action.payload;
+      const {
+        code,
+        korean_name,
+        trade_price,
+        change,
+        signed_change_price,
+        signed_change_rate,
+        acc_trade_price_24h,
+        high_price,
+        low_price,
+        acc_trade_volume_24h,
+      } = action.payload;
       state.value = {
         ...state.value,
         [code]: {
@@ -34,6 +47,9 @@ export const tickerListSlice = createSlice({
           signed_change_price,
           signed_change_rate,
           acc_trade_price_24h,
+          high_price,
+          low_price,
+          acc_trade_volume_24h,
         },
       };
     },

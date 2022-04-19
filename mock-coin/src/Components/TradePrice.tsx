@@ -54,7 +54,7 @@ function TradePrice({ price, change, index }: Props) {
         <div>{price}</div>
       ) : (
         <Container previousPrice={previousPrice} price={price} change={(previousPrice || 0) - price}>
-          {price}
+          {price.toLocaleString()}
         </Container>
       )}
     </>
