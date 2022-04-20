@@ -11,10 +11,9 @@ import Transactions from './Transactions';
 import Trade from './Trade';
 import RevenueStatus from './RevenueStatus';
 const Container = styled.div`
-  width: 100%;
-  padding: 15px;
   display: flex;
-  justify-content: space-between;
+  align-items: start;
+  justify-content: center;
 `;
 
 const Header = styled.header`
@@ -52,11 +51,15 @@ const CoinList = styled.ul`
     }
   }
 `;
-
+const Left = styled.div`
+  margin-right: 20px;
+  display: flex;
+  flex-direction: column;
+`;
+const Right = styled.div``;
 function Home() {
   const history = useHistory();
   const [isLoading, setIsLoading] = useState<boolean>(true);
-  const defaultCoin = useRecoilValue(focusedCoin);
 
   useEffect(() => {
     history.push(`/KRW-BTC`);
@@ -66,8 +69,13 @@ function Home() {
     <>
       {isLoading ? null : (
         <Container>
-          <CoinOutline />
-          <Tickers />
+          <Left>
+            <CoinOutline />
+            <Candlestick />
+          </Left>
+          <Right>
+            <Tickers />
+          </Right>
         </Container>
       )}
     </>

@@ -1,8 +1,3 @@
-#Router
+프로젝트 진행 중!
 
-/ => 홈, 코인 랭킹 TOP7 [코인 이름,시가 총액,가격,거래량,유통코인수] / 나의 자산
-
-/trade/:coinId =>차트, 코인 리스트,매수,자산
-
-//redux react query 선정이유
-https://techblog.woowahan.com/6339/
+![Hnet com-image](https://user-images.githubusercontent.com/74299317/164152410-72d339e4-2f39-421b-ad12-39eaa98c1ecf.gif)

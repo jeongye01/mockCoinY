@@ -1,20 +1,23 @@
 import { useEffect, useState } from 'react';
-import { fetchCandlestick } from '../Api';
+import { getCandlestick } from '../Api';
 import ReactApexChart from 'react-apexcharts';
 import { useRecoilValue, useSetRecoilState } from 'recoil';
 import { useParams } from 'react-router-dom';
 import { focusedCoin } from '../atoms';
 function Candlestick() {
   const [chartState, setChartState] = useState<any>();
-  const [isLoading, setIsLoading] = useState<boolean>(true);
-  const order_currency = useRecoilValue(focusedCoin);
+  const { coinId } = useParams<{ coinId: string }>();
+  const [loading, setLoading] = useState<boolean>(true);
+  //const order_currency = useRecoilValue(focusedCoin);
   const [chart_intervals, setChartIntervals] = useState<string>('24h');
   const intervals = ['1m', '3m', '5m', '10m', '30m', '1h', '6h', '12h', '24h'];
   //any 고치기
   useEffect(() => {
-    console.log(order_currency, chart_intervals);
-    fetchCandlestick(order_currency, chart_intervals).then((result) => {
-      const data = result.data.slice(-120, -1).map((d: any) => ({ x: new Date(d[0]), y: [d[1], d[3], d[4], d[2]] }));
+    if (!coinId) return;
+    const getCandles = async () => await getCandlestick(coinId, chart_intervals, 0);
+    getCandles().then((res: any) => {
+      console.log(res);
+      const data = res.slice(-120, -1).map((d: any) => ({ x: new Date(d[0]), y: [d[1], d[3], d[4], d[2]] }));
       const STATE = {
         series: [
           {
@@ -42,13 +45,14 @@ function Candlestick() {
       };
 
       setChartState(STATE);
-      setIsLoading(false);
+      setLoading(false);
     });
-  }, [chart_intervals, order_currency]);
+    console.log(chart_intervals);
+  }, [chart_intervals, coinId]);
   return (
     <>
-      {isLoading ? (
-        <h1>candleStick</h1>
+      {loading ? (
+        <h1>...Loading</h1>
       ) : (
         <div>
           <div>
