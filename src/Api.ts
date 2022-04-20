@@ -16,10 +16,12 @@ export const getCoinList = async () => {
 {interval} = 차트 간격, 기본값 : 24h {1m, 3m, 5m, 10m, 30m, 1h, 6h, 12h, 24h 사용 가능}
 {count}interval분 봉을  몇개 가져올지  200개 까지 요청 가능 
 */
-export async function getCandlestick(market: string, interval: string, count?: number) {
-  return instance
-    .get(`/candles/minutes/${interval}?market=${market}&count=120&to=${Date.UTC}`)
-    .then((response) => response.data);
+export async function getCandlestick(market: string, path: string, unit?: number) {
+  if (!unit) {
+    return instance.get(`/candles/${path}?market=${market}&count=200`).then((response) => response.data);
+  } else {
+    return instance.get(`/candles/${path}/${unit}?market=${market}&count=200`).then((response) => response.data);
+  }
 }
 
 const bithumb = axios.create({

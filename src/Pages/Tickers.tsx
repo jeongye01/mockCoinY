@@ -152,7 +152,7 @@ function Tickers() {
       console.log('connected', e);
       const id = uuidv4();
       const codes = coinList?.value?.map((coin) => coin.market);
-      websocket.send(JSON.stringify([{ ticket: id }, { type: 'ticker', codes }]));
+      websocket.send(JSON.stringify([{ ticket: id }, { type: 'ticker', codes, isOnlySnapshot: true }]));
     }; //[{ ticket: id }, { type: 'ticker', codes,isOnlySnapshot:true }]
     websocket.onmessage = async (event) => {
       const { data } = event;
