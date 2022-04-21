@@ -1,5 +1,4 @@
 import axios from 'axios';
-import { response } from 'express';
 
 const instance = axios.create({
   baseURL: 'https://api.upbit.com/v1',

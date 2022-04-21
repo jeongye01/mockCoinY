@@ -60,14 +60,16 @@ const Right = styled.div``;
 function Home() {
   const history = useHistory();
   const [isLoading, setIsLoading] = useState<boolean>(true);
-  /*
+
   useEffect(() => {
     history.push(`/KRW-BTC`);
     setIsLoading(false);
-  }, []);*/
+  }, []);
   return (
     <>
-      {isLoading ? null : (
+      {isLoading ? (
+        <>Loading...</>
+      ) : (
         <Container>
           <Left>
             <CoinOutline />

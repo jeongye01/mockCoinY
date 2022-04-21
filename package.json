@@ -46,9 +46,7 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject",
-    "deploy": "gh-pages -d build",
-    "predeploy": "npm run build"
+    "eject": "react-scripts eject"
   },
   "eslintConfig": {
     "extends": [
@@ -69,6 +67,7 @@
     ]
   },
   "devDependencies": {
+    "@types/react-redux": "^7.1.24",
     "@types/react-router-dom": "^5.3.3",
     "@types/react-table": "^7.7.9",
     "@types/styled-components": "^5.1.21",
@@ -76,10 +75,10 @@
     "@types/websocket": "^1.0.5",
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-prettier": "^4.0.0",
+    "eslint-plugin-react-hooks": "^4.4.0",
     "eslit": "^6.0.0",
     "i": "^0.3.7",
     "npm": "^8.3.2",
     "prettier": "^2.5.1"
-  },
-  "homepage": "https://jeongye01.github.io/mockCoinY"
+  }
 }
