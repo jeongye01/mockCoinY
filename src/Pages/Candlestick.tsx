@@ -48,7 +48,7 @@ interface IParams {
   unit?: number;
   market: string;
 }
-interface ICandleStricInfo {
+interface ICandleSticInfo {
   high_price: number; //H
   low_price: number; //L
   opening_price: number; //O
@@ -69,14 +69,17 @@ function Candlestick() {
   const [params, setParams] = useState<IParams>();
   const [chartState, setChartState] = useState<any>();
   //any 고치기
-
   useEffect(() => {
-    if (!params || !coinId) return;
-    //setLoading(true);
-    const getCandleStickData = async () => await getCandlestick(coinId, params.path, params.unit);
-    getCandleStickData().then((data: ICandleStricInfo[]) => {
+    if (!coinId) return;
+    setParams({ market: coinId, path: 'minutes', unit: 1 });
+  }, [coinId]);
+  useEffect(() => {
+    if (!params) return;
+
+    const getCandleStickData = async () => await getCandlestick(params.market, params.path, params.unit);
+    getCandleStickData().then((data: ICandleSticInfo[]) => {
       if (!data) return;
-      console.log(data);
+
       const chartData = data?.map((stick) => [
         stick.timestamp,
         [stick.opening_price, stick.high_price, stick.low_price, stick.trade_price],
@@ -134,7 +137,7 @@ function Candlestick() {
       setChartState(STATE);
       setLoading(false);
     });
-  }, [coinId, params]);
+  }, [params]);
   console.log(params);
   return (
     <Container>

@@ -148,7 +148,6 @@ function Tickers() {
     if (!coinList) return;
     const websocket = new WebSocket('wss://api.upbit.com/websocket/v1');
     websocket.onopen = (e) => {
-      console.log('connected', e);
       const id = uuidv4();
       const codes = coinList?.value?.map((coin) => coin.market);
       websocket.send(JSON.stringify([{ ticket: id }, { type: 'ticker', codes, isOnlySnapshot: true }]));

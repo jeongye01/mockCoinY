@@ -158,7 +158,6 @@ function Trade() {
     const {
       target: { value },
     } = event;
-    console.log(value);
     setQuantity(value === '' ? 0 : parseInt(value));
   };
   return (

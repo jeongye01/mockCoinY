@@ -16,10 +16,10 @@ export const getCoinList = async () => {
 {count}interval분 봉을  몇개 가져올지  200개 까지 요청 가능 
 */
 export async function getCandlestick(market: string, path: string, unit?: number) {
-  if (!unit) {
-    return instance.get(`/candles/${path}?market=${market}&count=100`).then((response) => response.data);
-  } else {
+  if (path === 'minutes') {
     return instance.get(`/candles/${path}/${unit}?market=${market}&count=80`).then((response) => response.data);
+  } else {
+    return instance.get(`/candles/${path}?market=${market}&count=100`).then((response) => response.data);
   }
 }
 

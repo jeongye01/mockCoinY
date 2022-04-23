@@ -73,7 +73,6 @@ function CoinOutline() {
 
   const [loading, setLoading] = useState<boolean>(true);
   useEffect(() => {
-    console.log(tickerList?.value?.[coinId]);
     setLoading(true);
     if (!coinId) return;
     if (!tickerList?.value?.[coinId] || !coinList?.value) return;

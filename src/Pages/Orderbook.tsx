@@ -43,6 +43,7 @@ const TableHead = styled.div`
 
   padding: 13px;
   font-size: 14px;
+  border-bottom: 1px solid ${(props) => props.theme.lineColor};
   div:first-child {
     display: flex;
     align-items: center;
@@ -106,6 +107,7 @@ function Orderbook() {
   useEffect(() => {
     if (!coinId) return;
     setLoading(true);
+
     const websocket = new WebSocket('wss://api.upbit.com/websocket/v1');
     websocket.onopen = (e) => {
       const id = uuidv4();
@@ -126,17 +128,14 @@ function Orderbook() {
           return { ...ob, bid_acc: bid_sum, ask_acc: ask_sum };
         });
         setOrderBooks(result);
+        setLoading(false);
       } catch {}
     };
     return () => {
       websocket.close();
     };
   }, [coinId]);
-  useEffect(() => {
-    if (!orderBooks || orderBooks.length === 0) return;
-    setLoading(false);
-  }, [orderBooks]);
-  console.log(orderBooks);
+
   return (
     <>
       {loading ? (

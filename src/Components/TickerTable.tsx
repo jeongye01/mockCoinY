@@ -36,7 +36,7 @@ function TickerTable() {
   const [coins, setCoins] = useRecoilState(coinListState);
   const { coinId } = useParams<{ coinId: string }>();
   const setFocusedCoin = useSetRecoilState(focusedCoin);
-  console.log(coinId);
+
   //
 
   // console.log(symbols, coins);
@@ -85,7 +85,6 @@ function TickerTable() {
     };*/
   }, []);
 
-  console.log(coins);
   return (
     <>
       {Object.keys(coins).map((coin) => (

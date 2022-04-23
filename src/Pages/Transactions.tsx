@@ -1,170 +1,158 @@
 import { useEffect, useState } from 'react';
-import { useRecoilValue } from 'recoil';
-import { w3cwebsocket as W3CWebSocket } from 'websocket';
-import { focusedCoin } from '../atoms';
-import { fetchOrderbook, fetchTransactions } from '../Api';
-import styled from 'styled-components';
 
+import { w3cwebsocket as W3CWebSocket } from 'websocket';
+import moment from 'moment-timezone';
+import { fetchTransactions } from '../Api';
+import styled from 'styled-components';
+import { v4 as uuidv4 } from 'uuid';
+import { useParams } from 'react-router-dom';
 const Container = styled.div`
   width: 290px;
   background-color: ${(props) => props.theme.panelColor};
   box-shadow: ${(props) => props.theme.boxShadow};
   border-radius: 15px;
 `;
-const Table = styled.table`
-  table-layout: fixed;
+const Table = styled.div`
+  display: flex;
+  flex-direction: column;
   width: 100%;
-  border-collapse: collapse;
-  font-size: 14px;
-  white-space: nowrap;
   height: 630px;
   min-height: 630px;
-  tbody {
-    overflow-y: scroll;
-    //display: block;
-    height: 580px;
-    display: flex;
-    flex-direction: column-reverse;
-    &::-webkit-scrollbar-thumb {
-      background-color: ${(props) => props.theme.lineColor};
-      height: 5px;
-    }
-    &::-webkit-scrollbar {
-      opacity: 0;
-      width: 2px;
-    }
-  }
-  tr {
-    display: flex;
-    width: 100%;
-    padding: 10px;
-  }
+  overflow-y: scroll;
 
-  thead th {
-    opacity: 0.7;
-    border-top: 1px solid ${(props) => props.theme.lineColor};
-    padding: 10px 0;
-    border-bottom: 1px solid ${(props) => props.theme.lineColor};
+  &::-webkit-scrollbar-thumb {
+    background-color: ${(props) => props.theme.lineColor};
+    height: 5px;
   }
+  &::-webkit-scrollbar {
+    opacity: 0;
+    width: 2px;
+  }
+`;
 
-  thead th,
-  tbody td {
+const TableHead = styled.div`
+  display: flex;
+  width: 100%;
+  opacity: 0.3;
+  font-weight: 600;
+
+  padding: 13px;
+  font-size: 14px;
+  border-bottom: 1px solid ${(props) => props.theme.lineColor};
+  div:first-child {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 33%;
+
+    text-align: center;
+  }
+  div:nth-child(2) {
+    width: 33%;
+    text-align: center;
+  }
+  div:last-child {
+    width: 33%;
     text-align: end;
   }
-  thead th:nth-child(1),
-  tbody td:nth-child(1) {
-    width: 33%;
-    text-align: start;
-  }
+`;
+const Row = styled.div<{ tradeType: 'ASK' | 'BID' }>`
+  border-top: 1px solid ${(props) => props.theme.panelColor};
+  display: flex;
+  align-items: center;
+  width: 100%;
+  color: ${({ theme, tradeType }) => (tradeType === 'ASK' ? theme.blue : theme.red)};
+  padding: 0px 13px;
 
-  thead th:nth-child(2),
-  tbody td:nth-child(2) {
+  div:first-child {
+    display: flex;
+    align-items: center;
+    justify-content: center;
     width: 33%;
+    height: 32px;
+    text-align: center;
+    font-size: 16px;
+    background-color: ${({ tradeType }) => (tradeType === 'ASK' ? '#ecf3fa' : '#FBF1EF')};
   }
-
-  thead th:last-child,
-  tbody td:last-child {
+  div:nth-child(2) {
     width: 33%;
+    text-align: end;
+    font-size: 14px;
+  }
+  div:last-child {
+    width: 33%;
+    text-align: end;
+    font-size: 14px;
   }
 `;
 
-const ColorCol = styled.td<{ type: string }>`
-  color: ${(props) => (props.type === 'bid' ? props.theme.red : props.theme.blue)};
-`;
 //time 형태를 제한할 수 있도록 만들어 보기
-interface Itransaction {
-  transaction_date: string;
-  type: 'bid' | 'ask';
-  units_traded: number;
-  price: number;
-  total: number;
+interface ITrade {
+  trade_price: number; //체결 가격
+  trade_volume: number; //체결 수량
+  ask_bid: 'ASK' | 'BID'; //체결 타입
+  trade_time: string; //체결시간 HH:mm:ss
+  trade_timestamp: number;
 }
 
 function Transactions() {
-  const coinId = useRecoilValue(focusedCoin);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [transactions, setTransactions] = useState<Itransaction[]>();
+  const { coinId } = useParams<{ coinId: string }>();
+  const [loading, setLoading] = useState<boolean>(true);
+  const [trades, setTrades] = useState<ITrade[]>([]);
 
   useEffect(() => {
-    console.log(coinId);
-    fetchTransactions(coinId).then((result) => {
-      setTransactions(result);
-      setIsLoading(false);
-    });
-    //setIsLoading(false);
+    if (!coinId) return;
+    setLoading(true);
+    setTrades([]);
+    const websocket = new WebSocket('wss://api.upbit.com/websocket/v1');
+    websocket.onopen = (e) => {
+      const id = uuidv4();
 
-    //
-  }, [coinId]);
-  useEffect(() => {
-    /*
-    const websocket = new W3CWebSocket('wss://pubwss.bithumb.com/pub/ws');
+      websocket.send(JSON.stringify([{ ticket: id }, { type: 'trade', codes: [coinId], isOnlySnapshot: true }]));
+    }; //[{ ticket: id }, { type: 'ticker', codes,isOnlySnapshot:true }]
+    websocket.onmessage = async (event) => {
+      try {
+        const { data } = event;
+        console.log(event);
+        const text = await new Response(data).text();
 
-    websocket.onopen = () => {
-      const msg = { type: 'transaction', symbols: [`${coinId}_KRW`] };
-      websocket.send(JSON.stringify(msg));
-    };
-
-    websocket.onmessage = (event) => {
-      const data = JSON.parse(event.data.toString());
-      //console.log(data);
-      if (data?.type === 'transaction') {
-        const {
-          content: { list },
-        } = data;
-        let tmpArr: Itransaction[] = [];
-        //any 고치기
-        list.forEach((li: any) => {
-          const { contDtm, buySellGb, contQty, contPrice, contAmt } = li;
-          console.log(buySellGb);
-          tmpArr = [
-            ...tmpArr,
-            {
-              transaction_date: contDtm,
-              type: buySellGb === '1' ? 'ask' : 'bid',
-              units_traded: contQty,
-              price: contPrice,
-              total: contAmt,
-            },
-          ];
+        console.log(text);
+        setTrades((prev) => {
+          //늦게 온게 앞에 위치하도록 배치
+          if (prev.length > 25) {
+            return [JSON.parse(text), ...prev.slice(0, -1)];
+          } else {
+            return [JSON.parse(text), ...prev];
+          }
         });
-        setTransactions((prev) => [...(prev || []), ...tmpArr].slice(-20));
-
-        //console.log(data.content);
-        //setIsLoading(false);
-      }
+        setLoading(false);
+      } catch {}
     };
-
-    console.log(transactions);
-
     return () => {
       websocket.close();
-    };*/
-  }, [transactions]);
+    };
+  }, [coinId]);
+  console.log(trades);
+
   return (
     <>
-      {isLoading ? (
+      {loading ? (
         <h1>transactions</h1>
       ) : (
         <Container>
+          <TableHead>
+            <div>체결시간</div>
+            <div>가격</div>
+            <div>수량</div>
+          </TableHead>
           <Table>
-            <thead>
-              <tr>
-                <th>체결시간</th>
-                <th>가격</th>
-                <th>수량</th>
-              </tr>
-            </thead>
-            <tbody>
-              {transactions?.map((transaction) => (
-                <tr>
-                  <td>{transaction?.transaction_date.slice(11, 19)}</td>
-                  <ColorCol type={transaction.type}>{Math.floor(transaction?.price).toLocaleString()}</ColorCol>
-                  <ColorCol type={transaction.type}>{`${
-                    Math.round(transaction?.units_traded * 10000) / 10000
-                  }`}</ColorCol>
-                </tr>
-              ))}
-            </tbody>
+            {trades?.map((trade) => (
+              <Row tradeType={trade?.ask_bid}>
+                <div>{moment.tz(trade?.trade_timestamp, 'Asia/Seoul').format().slice(11, 19)}</div>
+                <div>{trade?.trade_price.toLocaleString()}</div>
+                <div>{trade?.trade_volume.toFixed(4)}</div>
+              </Row>
+            ))}
           </Table>
         </Container>
       )}
