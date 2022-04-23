@@ -6,10 +6,9 @@ import { darkTheme, lightTheme } from './Styles';
 import { useRecoilValue } from 'recoil';
 import { isDarkAtom } from './atoms';
 function App() {
-  const isDark = useRecoilValue(isDarkAtom);
   return (
     <>
-      <ThemeProvider theme={isDark ? darkTheme : lightTheme}>
+      <ThemeProvider theme={lightTheme}>
         <GlobalStyle />
         <Router />
       </ThemeProvider>
