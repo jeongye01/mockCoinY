@@ -1,3 +1,3 @@
-프로젝트 진행 중!
+#### 구현한 화면
 
-![Hnet com-image](https://user-images.githubusercontent.com/74299317/164152410-72d339e4-2f39-421b-ad12-39eaa98c1ecf.gif)
+![구현한 화면](https://user-images.githubusercontent.com/74299317/164910824-3782fda1-0b5b-43ff-a0e1-8342f6c65c91.png)
