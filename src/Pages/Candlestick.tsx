@@ -3,15 +3,16 @@ import { getCandlestick } from '../Api';
 import ReactApexChart from 'react-apexcharts';
 import { useParams } from 'react-router-dom';
 import styled, { css, keyframes } from 'styled-components';
+import moment from 'moment-timezone';
 const Container = styled.div`
   background-color: ${(props) => props.theme.panelColor};
   border-radius: 10px;
   box-shadow: ${(props) => props.theme.boxShadow};
   padding: 10px 20px;
-  width: 990px;
-  min-width: 990px;
+  width: 100%;
   height: 430px;
   margin-top: 20px;
+  margin-bottom: 20px;
 `;
 const Buttons = styled.div`
   display: flex;
@@ -55,11 +56,12 @@ interface ICandleStricInfo {
   timestamp: number;
   candle_date_time_kst: string;
 }
-function convertToTimestamp(time: string): number {
-  const date = new Date(time);
-  const result = date.getTime();
-  console.log(result);
-  return result;
+function convertToTimestamp(time: number) {
+  const c = moment.tz(time, 'Asia/Seoul');
+  const date = new Date(c.format());
+
+  console.log(date.getTime());
+  return date.getTime();
 }
 function Candlestick() {
   const { coinId } = useParams<{ coinId: string }>();
@@ -70,13 +72,13 @@ function Candlestick() {
 
   useEffect(() => {
     if (!params || !coinId) return;
-    setLoading(true);
+    //setLoading(true);
     const getCandleStickData = async () => await getCandlestick(coinId, params.path, params.unit);
     getCandleStickData().then((data: ICandleStricInfo[]) => {
       if (!data) return;
       console.log(data);
       const chartData = data?.map((stick) => [
-        new Date().getTime(),
+        stick.timestamp,
         [stick.opening_price, stick.high_price, stick.low_price, stick.trade_price],
       ]);
       const STATE = {
@@ -95,6 +97,12 @@ function Candlestick() {
             text: coinId,
             align: 'left',
           },
+          legend: {
+            markers: {
+              width: 12,
+              height: 12,
+            },
+          },
           plotOptions: {
             candlestick: {
               colors: {
@@ -111,6 +119,9 @@ function Candlestick() {
           },
           xaxis: {
             type: 'datetime',
+            labels: {
+              datetimeUTC: false,
+            },
           },
           yaxis: {
             tooltip: {
@@ -140,15 +151,17 @@ function Candlestick() {
           ))}
         </div>
         <div>
-          {Object.keys(dwm).map((interval) => (
-            <Button
-              selected={params?.path === interval}
-              key={interval}
-              onClick={() => setParams({ path: interval, market: coinId })}
-            >
-              <span>{dwm?.[interval]?.title}</span>
-            </Button>
-          ))}
+          {Object.keys(dwm)
+            .slice(0, 3)
+            .map((interval) => (
+              <Button
+                selected={params?.path === interval}
+                key={interval}
+                onClick={() => setParams({ path: interval, market: coinId })}
+              >
+                <span>{dwm?.[interval]?.title}</span>
+              </Button>
+            ))}
         </div>
       </Buttons>
 

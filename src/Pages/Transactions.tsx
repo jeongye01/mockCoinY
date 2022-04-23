@@ -17,6 +17,8 @@ const Table = styled.table`
   border-collapse: collapse;
   font-size: 14px;
   white-space: nowrap;
+  height: 630px;
+  min-height: 630px;
   tbody {
     overflow-y: scroll;
     //display: block;

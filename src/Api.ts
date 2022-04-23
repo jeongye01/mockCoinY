@@ -17,9 +17,9 @@ export const getCoinList = async () => {
 */
 export async function getCandlestick(market: string, path: string, unit?: number) {
   if (!unit) {
-    return instance.get(`/candles/${path}?market=${market}&count=200`).then((response) => response.data);
+    return instance.get(`/candles/${path}?market=${market}&count=100`).then((response) => response.data);
   } else {
-    return instance.get(`/candles/${path}/${unit}?market=${market}&count=200`).then((response) => response.data);
+    return instance.get(`/candles/${path}/${unit}?market=${market}&count=80`).then((response) => response.data);
   }
 }
 

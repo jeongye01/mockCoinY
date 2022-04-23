@@ -9,8 +9,7 @@ const Container = styled.div`
   border-radius: 10px;
   box-shadow: ${(props) => props.theme.boxShadow};
   padding: 10px 20px;
-  width: 990px;
-  min-width: 990px;
+  width: 100%;
   height: 120px;
 `;
 const InfoRow = styled.div`

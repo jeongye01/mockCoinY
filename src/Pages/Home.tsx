@@ -9,7 +9,7 @@ import { useEffect, useState } from 'react';
 import Orderbook from './Orderbook';
 import Transactions from './Transactions';
 import Trade from './Trade';
-import RevenueStatus from './RevenueStatus';
+
 const Container = styled.div`
   display: flex;
   align-items: start;
@@ -54,9 +54,19 @@ const CoinList = styled.ul`
 const Left = styled.div`
   margin-right: 20px;
   display: flex;
+  width: 990px;
+  min-width: 990px;
   flex-direction: column;
 `;
-const Right = styled.div``;
+const Wrapper = styled.div`
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+`;
+const Right = styled.div`
+  width: 400px;
+  min-width: 400px;
+`;
 function Home() {
   const history = useHistory();
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -74,6 +84,11 @@ function Home() {
           <Left>
             <CoinOutline />
             <Candlestick />
+            <Wrapper>
+              <Transactions />
+              <Orderbook />
+              <Trade />
+            </Wrapper>
           </Left>
           <Right>
             <Tickers />

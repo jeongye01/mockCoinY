@@ -13,6 +13,7 @@ const Form = styled.div`
   justify-content: center;
   align-items: center;
   padding: 5px;
+  background-color: ${(props) => props.theme.panelColor};
   input {
     width: 80%;
     padding: 3px 6px;

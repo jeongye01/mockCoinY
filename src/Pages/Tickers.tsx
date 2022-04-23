@@ -19,6 +19,63 @@ interface ICoinRow {
   change: 'RISE' | 'EVEN' | 'FALL';
 }
 
+const Container = styled.div`
+width:100%
+
+  background-color: ${(props) => props.theme.panelColor};
+  border-radius: 10px;
+
+  box-shadow: ${(props) => props.theme.boxShadow};
+`;
+
+const Table = styled.div`
+  display: flex;
+  height: 620px;
+  flex-direction: column;
+  width: 100%;
+  height: 600px;
+  min-height: 600px;
+  overflow-y: scroll;
+  &::-webkit-scrollbar-thumb {
+    background-color: ${(props) => props.theme.lineColor};
+    height: 5px;
+  }
+  &::-webkit-scrollbar {
+    opacity: 0;
+    width: 2px;
+  }
+`;
+
+const TableHead = styled.div`
+  display: flex;
+  background-color: ${(props) => props.theme.lightGray};
+  padding: 6px 13px;
+  border-bottom: 1px solid ${(props) => props.theme.lineColor};
+  div {
+    font-size: 13px;
+    font-weight: 600;
+    opacity: 0.5;
+  }
+  div:first-child {
+    width: 10%;
+  }
+  div:nth-child(2) {
+    width: 30%;
+    text-align: start;
+  }
+  div:nth-child(3) {
+    width: 20%;
+    text-align: center;
+  }
+  div:nth-child(4) {
+    width: 20%;
+    text-align: end;
+  }
+  div:last-child {
+    width: 20%;
+    text-align: end;
+  }
+`;
 const CoinRow = styled.div<ICoinRow>`
   border-top: 1px solid ${(props) => props.theme.lightGray};
   display: flex;
@@ -26,7 +83,7 @@ const CoinRow = styled.div<ICoinRow>`
   width: 100%;
   font-size: 12px;
   padding: 6px 13px;
-  background-color: ${(props) => (props.isFocused ? props.theme.lightGray : 'inherit')};
+  background-color: ${(props) => (props.isFocused ? props.theme.lightGray : props.theme.panelColor)};
   &:hover {
     background-color: ${(props) => props.theme.lightGray};
   }
@@ -68,64 +125,6 @@ const CoinRow = styled.div<ICoinRow>`
     width: 20%;
     text-align: end;
   }
-`;
-
-const Table = styled.div`
-  display: flex;
-  height: 620px;
-  flex-direction: column;
-  width: 100%;
-  height: 600px;
-  min-height: 600px;
-  overflow-y: scroll;
-  &::-webkit-scrollbar-thumb {
-    background-color: ${(props) => props.theme.lineColor};
-    height: 5px;
-  }
-  &::-webkit-scrollbar {
-    opacity: 0;
-    width: 2px;
-  }
-`;
-
-const TableHead = styled.div`
-  display: flex;
-  background-color: ${(props) => props.theme.lightGray};
-  padding: 6px 13px;
-  div {
-    font-size: 13px;
-    font-weight: 600;
-    opacity: 0.5;
-  }
-  div:first-child {
-    width: 10%;
-  }
-  div:nth-child(2) {
-    width: 30%;
-    text-align: start;
-  }
-  div:nth-child(3) {
-    width: 20%;
-    text-align: center;
-  }
-  div:nth-child(4) {
-    width: 20%;
-    text-align: end;
-  }
-  div:last-child {
-    width: 20%;
-    text-align: end;
-  }
-`;
-const Container = styled.div`
-  width: 400px;
-  min-width: 400px;
-  max-width: 400px;
-
-  background-color: ${(props) => props.theme.panelColor};
-  border-radius: 10px;
-
-  box-shadow: ${(props) => props.theme.boxShadow};
 `;
 
 function Tickers() {
