@@ -1,6 +1,5 @@
 import { BrowserRouter, Route, Switch } from 'react-router-dom';
 import Home from './Pages/Home';
-import Trade from './Pages/Trade';
 
 function Router() {
   return (

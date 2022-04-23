@@ -7,8 +7,8 @@ import { focusedCoin, isDarkAtom } from '../atoms';
 import { useHistory } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import Orderbook from './Orderbook';
-import Transactions from './Transactions';
 import Trade from './Trade';
+import Transaction from './Transaction';
 
 const Container = styled.div`
   display: flex;
@@ -85,9 +85,9 @@ function Home() {
             <CoinOutline />
             <Candlestick />
             <Wrapper>
-              <Transactions />
-              <Orderbook />
               <Trade />
+              <Orderbook />
+              <Transaction />
             </Wrapper>
           </Left>
           <Right>

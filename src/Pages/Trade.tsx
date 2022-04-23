@@ -1,218 +1,163 @@
-import { useState } from 'react';
-import { useRecoilValue } from 'recoil';
-import styled from 'styled-components';
-import { coinListState, focusedCoin } from '../atoms';
+import { useEffect, useState } from 'react';
 
+import { w3cwebsocket as W3CWebSocket } from 'websocket';
+import moment from 'moment-timezone';
+import { fetchTransactions } from '../Api';
+import styled from 'styled-components';
+import { v4 as uuidv4 } from 'uuid';
+import { useParams } from 'react-router-dom';
 const Container = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  width: 280px;
-  height: 380px;
+  width: 290px;
   background-color: ${(props) => props.theme.panelColor};
   box-shadow: ${(props) => props.theme.boxShadow};
   border-radius: 15px;
-  font-size: 14px;
-  button {
-    all: unset;
-    &:hover {
-      background-color: ${(props) => props.theme.lineColor};
-      cursor: pointer;
-    }
-  }
 `;
-
-const TradeType = styled.div<{ isBidSelected: boolean }>`
-  display: flex;
-  width: 100%;
-  button {
-    font-size: 16px;
-    width: 50%;
-    padding: 15px;
-    text-align: center;
-    &:first-child {
-      border-radius: 15px 0 0 0;
-      background-color: ${(props) => (props.isBidSelected ? props.theme.red : props.theme.lineColor)};
-      color: ${(props) => (props.isBidSelected ? props.theme.panelColor : 'gray')};
-    }
-    &:last-child {
-      border-radius: 0 15px 0 0;
-      background-color: ${(props) => (props.isBidSelected ? props.theme.lineColor : props.theme.blue)};
-      color: ${(props) => (props.isBidSelected ? 'gray' : props.theme.panelColor)};
-    }
-  }
-`;
-
-const Main = styled.main`
-  width: 100%;
-  padding: 20px;
+const Table = styled.div`
   display: flex;
   flex-direction: column;
-  align-items: center;
-  div {
-    width: 100%;
-  }
-`;
-const UserInfo = styled.div`
-  div {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 7px;
-  }
-  margin-bottom: 10px;
-`;
-const Form = styled.div`
   width: 100%;
-`;
-const Setting = styled.div`
-  height: 30px;
-  span {
-    display: block;
-    font-size: 10px;
-    margin-bottom: 5px;
-  }
-  div {
-    height: 100%;
-    background: ${(props) => props.theme.lineColor};
-    display: flex;
-    flex-wrap: nowrap;
-    gap: 1px;
-    padding: 1px;
+  height: 630px;
+  min-height: 630px;
+  overflow-y: scroll;
 
-    border-radius: 15px;
-    button {
-      border: 1px solid ${(props) => props.theme.lineColor};
-      background: ${(props) => props.theme.panelColor};
-      width: 10%;
-      text-align: center;
-      &:last-child {
-        border-radius: 0px 15px 15px 0px;
-      }
-    }
-    input {
-      all: unset;
-      border-radius: 15px 0 0 15px;
-      border: 1px solid ${(props) => props.theme.lineColor};
-      background-color: ${(props) => props.theme.panelColor};
-      width: 80%;
-      padding: 0px 10px;
-      font-size: 16px;
-    }
+  &::-webkit-scrollbar-thumb {
+    background-color: ${(props) => props.theme.lineColor};
+    height: 5px;
   }
-  margin-bottom: 30px;
+  &::-webkit-scrollbar {
+    opacity: 0;
+    width: 2px;
+  }
 `;
-const Percentage = styled.div`
-  margin-top: -10px;
 
+const TableHead = styled.div`
   display: flex;
-
-  button {
-    font-size: 12px;
-    width: 25%;
-    padding: 5px;
-    text-align: center;
-    border: 1px solid ${(props) => props.theme.lineColor};
-    &:first-child {
-      border-radius: 10px 0 0 10px;
-    }
-    &:last-child {
-      border-radius: 0 10px 10px 0;
-    }
-  }
-  margin-bottom: 15px;
-`;
-const Submit = styled.div<{ isBidSelected: boolean }>`
   width: 100%;
-  div {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 10px;
-  }
-  button {
-    font-size: 16px;
-    box-sizing: border-box;
-    text-align: center;
-    width: 100%;
-    padding: 10px;
-    border-radius: 15px;
-    color: ${(props) => props.theme.panelColor};
-    background-color: ${(props) => (props.isBidSelected ? props.theme.red : props.theme.blue)};
+  opacity: 0.3;
+  font-weight: 600;
 
-    &:hover {
-      background-color: ${(props) => (props.isBidSelected ? props.theme.red : props.theme.blue)};
-    }
+  padding: 13px;
+  font-size: 14px;
+  border-bottom: 1px solid ${(props) => props.theme.lineColor};
+  div:first-child {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 33%;
+
+    text-align: center;
+  }
+  div:nth-child(2) {
+    width: 33%;
+    text-align: center;
+  }
+  div:last-child {
+    width: 33%;
+    text-align: end;
   }
 `;
+const Row = styled.div<{ tradeType: 'ASK' | 'BID' }>`
+  border-top: 1px solid ${(props) => props.theme.panelColor};
+  display: flex;
+  align-items: center;
+  width: 100%;
+  color: ${({ theme, tradeType }) => (tradeType === 'ASK' ? theme.blue : theme.red)};
+  padding: 0px 13px;
+
+  div:first-child {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 33%;
+    height: 32px;
+    text-align: center;
+    font-size: 16px;
+    background-color: ${({ tradeType }) => (tradeType === 'ASK' ? '#ecf3fa' : '#FBF1EF')};
+  }
+  div:nth-child(2) {
+    width: 33%;
+    text-align: end;
+    font-size: 14px;
+  }
+  div:last-child {
+    width: 33%;
+    text-align: end;
+    font-size: 14px;
+  }
+`;
+
+//time 형태를 제한할 수 있도록 만들어 보기
+interface ITrade {
+  trade_price: number; //체결 가격
+  trade_volume: number; //체결 수량
+  ask_bid: 'ASK' | 'BID'; //체결 타입
+  trade_time: string; //체결시간 HH:mm:ss
+  trade_timestamp: number;
+}
+
 function Trade() {
-  const [bidSelected, setBidSelected] = useState<boolean>(true);
-  const [quantity, setQuantity] = useState<number>();
-  const coins = useRecoilValue(coinListState);
-  const coinId = useRecoilValue(focusedCoin); /*
-  const onClickPlus = (e: React.MouseEventHandler<HTMLButtonElement>) => {
-    setQuantity((prev) => (prev ? (prev += 1) : 0));
-  };
-  const onClickMinus = (e: React.MouseEventHandler<HTMLButtonElement>) => {
-    setQuantity((prev) => (prev ? (prev -= 1) : 100));
-  };*/
-  const onQuantityChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const {
-      target: { value },
-    } = event;
-    setQuantity(value === '' ? 0 : parseInt(value));
-  };
+  const { coinId } = useParams<{ coinId: string }>();
+  const [loading, setLoading] = useState<boolean>(true);
+  const [trades, setTrades] = useState<ITrade[]>([]);
+
+  useEffect(() => {
+    if (!coinId) return;
+    setLoading(true);
+    setTrades([]);
+    const websocket = new WebSocket('wss://api.upbit.com/websocket/v1');
+    websocket.onopen = (e) => {
+      const id = uuidv4();
+
+      websocket.send(JSON.stringify([{ ticket: id }, { type: 'trade', codes: [coinId], isOnlySnapshot: true }]));
+    }; //[{ ticket: id }, { type: 'ticker', codes,isOnlySnapshot:true }]
+    websocket.onmessage = async (event) => {
+      try {
+        const { data } = event;
+        console.log(event);
+        const text = await new Response(data).text();
+
+        console.log(text);
+        setTrades((prev) => {
+          //늦게 온게 앞에 위치하도록 배치
+          if (prev.length > 25) {
+            return [JSON.parse(text), ...prev.slice(0, -1)];
+          } else {
+            return [JSON.parse(text), ...prev];
+          }
+        });
+        setLoading(false);
+      } catch {}
+    };
+    return () => {
+      websocket.close();
+    };
+  }, [coinId]);
+  console.log(trades);
+
   return (
-    <Container>
-      <TradeType isBidSelected={bidSelected}>
-        <button onClick={() => setBidSelected(true)}>매수</button>
-
-        <button onClick={() => setBidSelected(false)}>매도</button>
-      </TradeType>
-
-      <Main>
-        <UserInfo>
-          <div>
-            <span>주문가능</span>
-            <span>{bidSelected ? `719KRW` : `6.0000 ${coinId}`}</span>
-          </div>
-          <div>
-            <span>매{bidSelected ? `수` : `도`} 가능</span>
-            <span>{bidSelected ? `719KRW` : `6.0000 ${coinId}`}</span>
-          </div>
-        </UserInfo>
-
-        <Form>
-          <Setting>
-            <span>가격(KRW)</span>
-            <div>
-              <input value={coins[coinId]?.closePrice || 0} />
-              <button>+</button>
-              <button>-</button>
-            </div>
-          </Setting>
-          <Setting>
-            <span>수량{`(${coinId})`}</span>
-            <div>
-              <input value={quantity} onChange={onQuantityChange} />
-              <button onClick={() => setQuantity((prev) => (prev ? (prev += 1) : 100))}>+</button>
-              <button onClick={() => setQuantity((prev) => (prev ? (prev -= 1) : 0))}>-</button>
-            </div>
-          </Setting>
-          <Percentage>
-            <button>10%</button>
-            <button>25%</button>
-            <button>50%</button>
-            <button>100%</button>
-          </Percentage>
-          <Submit isBidSelected={bidSelected}>
-            <div>
-              <span>매{bidSelected ? `수` : `도`} 금액</span>
-              <span>72KRW</span>
-            </div>
-            <button>매{bidSelected ? `수` : `도`}</button>
-          </Submit>
-        </Form>
-      </Main>
-    </Container>
+    <>
+      {loading ? (
+        <h1>transactions</h1>
+      ) : (
+        <Container>
+          <TableHead>
+            <div>체결시간</div>
+            <div>가격</div>
+            <div>수량</div>
+          </TableHead>
+          <Table>
+            {trades?.map((trade) => (
+              <Row tradeType={trade?.ask_bid}>
+                <div>{moment.tz(trade?.trade_timestamp, 'Asia/Seoul').format().slice(11, 19)}</div>
+                <div>{trade?.trade_price.toLocaleString()}</div>
+                <div>{trade?.trade_volume.toFixed(4)}</div>
+              </Row>
+            ))}
+          </Table>
+        </Container>
+      )}
+    </>
   );
 }
+
 export default Trade;
