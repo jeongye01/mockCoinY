@@ -150,7 +150,8 @@ function Tickers() {
     websocket.onopen = (e) => {
       const id = uuidv4();
       const codes = coinList?.value?.map((coin) => coin.market);
-      websocket.send(JSON.stringify([{ ticket: id }, { type: 'ticker', codes, isOnlySnapshot: true }]));
+
+      websocket.send(JSON.stringify([{ ticket: id }, { type: 'ticker', codes }]));
     }; //[{ ticket: id }, { type: 'ticker', codes,isOnlySnapshot:true }]
     websocket.onmessage = async (event) => {
       const { data } = event;
@@ -178,19 +179,19 @@ function Tickers() {
           'Loading...'
         ) : (
           <>
-            {coinSearchResult?.value?.map((coin, i) => {
+            {coinSearchResult?.value?.map((coin) => {
               const { trade_price, change, signed_change_price, signed_change_rate, acc_trade_price_24h } =
                 tickerList?.value?.[coin.market];
 
               return (
-                <Link key={i} to={{ pathname: `/${coin.market}`, state: { korean_name: coin.korean_name } }}>
+                <Link key={coin.market} to={{ pathname: `/${coin.market}`, state: { korean_name: coin.korean_name } }}>
                   <CoinRow isFocused={coin.market === coinOnUrl} change={change}>
                     <div>★</div>
                     <div>
                       <span>{coin.korean_name}</span>
                       <span>{coin.market}</span>
                     </div>
-                    <TradePrice price={trade_price || 0} change={change || 'EVEN'} index={i} />
+                    <TradePrice price={trade_price || 0} />
 
                     <div>
                       {(tickerList?.value?.[coin.market] && (

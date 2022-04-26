@@ -1,16 +1,11 @@
 import React, { useEffect, useState, useRef, useMemo } from 'react';
 import styled, { css, keyframes } from 'styled-components';
-interface Props {
-  price: number;
-  change: 'RISE' | 'FALL' | 'EVEN';
-  index: number;
-}
 
-const Container = styled.div<{ change: number; previousPrice: number; price: number }>`
+const Container = styled.div<{ change: number }>`
   border: 1px solid transparent;
   ${({ change }) =>
     change &&
-    (change < 0
+    (change > 0
       ? css`
           animation: disappearRed 0.6s;
         `
@@ -36,7 +31,9 @@ const Container = styled.div<{ change: number; previousPrice: number; price: num
     }
   }
 `;
-
+interface Props {
+  price: number;
+}
 function usePrevious(value: number) {
   const ref = useRef<number>();
   useEffect(() => {
@@ -44,18 +41,50 @@ function usePrevious(value: number) {
   });
   return ref.current;
 }
-function TradePrice({ price, change, index }: Props) {
+function usePreviousGap(value: number) {
+  const ref = useRef<number>();
+  useEffect(() => {
+    ref.current = value;
+  });
+  return ref.current;
+}
+function TradePrice({ price }: Props) {
   const previousPrice = usePrevious(price);
+  const previousGap = usePreviousGap(price - (previousPrice || price));
   // console.log(previousPrice, price, Math.random().toFixed(1));
+  console.log(price, previousPrice);
 
   return (
     <>
       {!previousPrice ? (
-        <div>{price}</div>
+        <div>{price.toLocaleString()}</div>
       ) : (
-        <Container previousPrice={previousPrice} price={price} change={(previousPrice || 0) - price}>
-          {price.toLocaleString()}
-        </Container>
+        <>
+          <>
+            {' '}
+            {(previousGap || price - previousPrice) > 0 && price - previousPrice > 0 && (
+              <Container change={price - previousPrice}>{price.toLocaleString()}</Container>
+            )}
+          </>
+          <>
+            {' '}
+            {(previousGap || price - previousPrice) < 0 && price - previousPrice < 0 && (
+              <Container change={price - previousPrice}>{price.toLocaleString()}</Container>
+            )}
+          </>
+          <>
+            {' '}
+            {(previousGap || price - previousPrice) > 0 && price - previousPrice < 0 && (
+              <Container change={price - previousPrice}>{price.toLocaleString()}</Container>
+            )}
+          </>
+          <>
+            {' '}
+            {(previousGap || price - previousPrice) < 0 && price - previousPrice > 0 && (
+              <Container change={price - previousPrice}>{price.toLocaleString()}</Container>
+            )}
+          </>
+        </>
       )}
     </>
   );

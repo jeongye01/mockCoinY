@@ -146,8 +146,8 @@ function Trade() {
             <div>수량</div>
           </TableHead>
           <Table>
-            {trades?.map((trade) => (
-              <Row tradeType={trade?.ask_bid}>
+            {trades?.map((trade, i) => (
+              <Row key={i} tradeType={trade?.ask_bid}>
                 <div>{moment.tz(trade?.trade_timestamp, 'Asia/Seoul').format().slice(11, 19)}</div>
                 <div>{trade?.trade_price.toLocaleString()}</div>
                 <div>{trade?.trade_volume.toFixed(4)}</div>
